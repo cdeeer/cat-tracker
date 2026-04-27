@@ -1,0 +1,190 @@
+{% extends 'Oggie/base.html' %}
+{% load static %}
+
+{% block title %}Report incident · {{ cat.name }} · Oggie{% endblock %}
+
+{% block extra_css %}
+<style>
+.incident-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin: 0.6rem 0 1.2rem;
+}
+.incident-card {
+  border: 2.5px solid var(--peach-light);
+  border-radius: 16px;
+  padding: 1rem 0.8rem;
+  text-align: center;
+  cursor: pointer;
+  background: var(--white);
+  transition: border-color 0.15s, background 0.15s, transform 0.1s, box-shadow 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.incident-card:hover {
+  border-color: var(--coral);
+  background: var(--cream);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 rgba(0,0,0,0.06);
+}
+.incident-card.selected {
+  border-color: var(--coral);
+  background: var(--peach-light);
+  box-shadow: 0 0 0 3px var(--coral), 0 4px 0 rgba(0,0,0,0.06);
+}
+.incident-card .ic-emoji { font-size: 2.2rem; line-height: 1; display: block; margin-bottom: 0.4rem; }
+.incident-card .ic-label { font-family: 'Fredoka', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--charcoal); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:680px; margin:0 auto;">
+
+  {# Cat banner #}
+  <div class="card mb-3" style="display:flex; gap:1rem; align-items:center;">
+    {% if cat.photo %}
+      <img src="{{ cat.photo.url }}" alt="{{ cat.name }}"
+           style="width:80px; height:80px; object-fit:cover; border-radius:14px;"
+           data-cat-photo onerror="oggieCatPhotoFallback(this)">
+    {% else %}
+      <div class="cat-photo-emoji-sm" style="width:80px; height:80px; font-size:36px;" aria-hidden="true"><span class="cat-glyph">😼</span></div>
+    {% endif %}
+    <div>
+      <h1 class="mt-0" style="font-size:1.6rem;">🚨 Report an incident for {{ cat.name }}</h1>
+      {% if cat.foundation %}
+        <p class="text-muted mb-0">Your report will be sent directly to <strong>{{ cat.foundation.name }}</strong>. They'll follow up as soon as possible.</p>
+      {% else %}
+        <p class="text-muted mb-0">This cat hasn't been claimed by a foundation yet, but your report will still be recorded.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Error summary #}
+  {% if form.non_field_errors %}
+    <ul class="messages"><li class="error">{{ form.non_field_errors }}</li></ul>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" class="card">
+    {% csrf_token %}
+
+    {# Incident type — card radio buttons #}
+    <div class="field">
+      <label style="font-weight:700; color:var(--charcoal);">What's happening? <span style="color:var(--danger);">*</span></label>
+      {% if form.incident_type.errors %}
+        <p style="color:var(--danger); font-size:0.9rem; margin:0.2rem 0;">Please select one of the options below.</p>
+      {% endif %}
+
+      <div class="incident-type-grid" role="radiogroup" aria-label="Incident type">
+        {% for value, label in form.fields.incident_type.choices %}
+          <button type="button"
+                  class="incident-card{% if form.incident_type.value == value %} selected{% endif %}"
+                  data-value="{{ value }}"
+                  role="radio"
+                  aria-checked="{% if form.incident_type.value == value %}true{% else %}false{% endif %}"
+                  tabindex="0">
+            <span class="ic-emoji">
+              {% if value == 'injured' %}🩹
+              {% elif value == 'sick' %}🤒
+              {% elif value == 'abandoned' %}💔
+              {% elif value == 'missing' %}🔍
+              {% elif value == 'update_info' %}📝
+              {% else %}⚠️
+              {% endif %}
+            </span>
+            <span class="ic-label">{{ label }}</span>
+          </button>
+        {% endfor %}
+      </div>
+      {# Hidden input synced by JS #}
+      {{ form.incident_type }}
+    </div>
+
+    {# Description #}
+    <div class="field">
+      <label for="{{ form.description.id_for_label }}">
+        What did you see? <span style="color:var(--danger);">*</span>
+      </label>
+      {{ form.description }}
+      <span class="helptext">The more detail you share, the faster the foundation can help.</span>
+      {{ form.description.errors }}
+    </div>
+
+    {# Photo #}
+    <div class="field">
+      <label for="{{ form.photo.id_for_label }}">Photo <span class="text-muted" style="font-weight:500;">(optional)</span></label>
+      {{ form.photo }}
+      <span class="helptext">A picture helps the team assess the situation faster.</span>
+    </div>
+
+    {# Contact info (hidden if logged in, pre-filled) #}
+    {% if user.is_authenticated %}
+      <p class="text-muted" style="font-size:0.9rem; margin-top:0.5rem;">
+        Reporting as <strong>{{ user.get_full_name|default:user.username }}</strong> · <a href="{% url 'account_settings' %}">not you?</a>
+      </p>
+    {% else %}
+      <details style="margin:0.5rem 0 1rem;" class="card" open>
+        <summary style="cursor:pointer; font-weight:700; color:var(--rust); padding:0.1rem 0;">
+          Your contact info <span class="text-muted" style="font-weight:400;">(optional — helps the foundation follow up)</span>
+        </summary>
+        <div class="row mt-2">
+          <div class="field col">
+            <label for="{{ form.reporter_name.id_for_label }}">{{ form.reporter_name.label }}</label>
+            {{ form.reporter_name }}
+          </div>
+          <div class="field col">
+            <label for="{{ form.reporter_email.id_for_label }}">{{ form.reporter_email.label }}</label>
+            {{ form.reporter_email }}
+          </div>
+        </div>
+      </details>
+    {% endif %}
+
+    <button class="btn btn-danger" type="submit" id="submit-btn" disabled
+            style="font-size:1.1rem; padding:0.8rem 2rem;">
+      🚨 Send report
+    </button>
+    <a class="btn btn-secondary" href="{{ cat.get_absolute_url }}">Cancel</a>
+    <p class="text-muted" style="font-size:0.85rem; margin-top:0.5rem;" id="submit-hint">
+      Select an incident type above to continue.
+    </p>
+  </form>
+</div>
+{% endblock %}
+
+{% block leaflet_js %}
+<script>
+(function () {
+  const cards = document.querySelectorAll('.incident-card');
+  const hidden = document.getElementById('{{ form.incident_type.id_for_label }}');
+  const submitBtn = document.getElementById('submit-btn');
+  const hint = document.getElementById('submit-hint');
+
+  function select(card) {
+    cards.forEach(c => {
+      c.classList.remove('selected');
+      c.setAttribute('aria-checked', 'false');
+    });
+    card.classList.add('selected');
+    card.setAttribute('aria-checked', 'true');
+    hidden.value = card.dataset.value;
+    submitBtn.disabled = false;
+    hint.style.display = 'none';
+  }
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => select(card));
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(card); }
+    });
+    // Restore selection on page reload (e.g. form validation failure)
+    if (hidden.value && card.dataset.value === hidden.value) {
+      card.classList.add('selected');
+      card.setAttribute('aria-checked', 'true');
+      submitBtn.disabled = false;
+      hint.style.display = 'none';
+    }
+  });
+})();
+</script>
+{% endblock %}

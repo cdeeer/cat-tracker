@@ -1,0 +1,14 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Delete announcement · Oggie{% endblock %}
+
+{% block content %}
+<div style="max-width:520px; margin:0 auto;">
+  <h1>Delete "{{ object.title }}"?</h1>
+  <form method="post" class="card">
+    {% csrf_token %}
+    <button class="btn btn-danger" type="submit">Yes, delete</button>
+    <a class="btn btn-secondary" href="{% url 'foundation_announcement_list' %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

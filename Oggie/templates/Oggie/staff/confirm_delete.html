@@ -1,0 +1,34 @@
+{% extends 'Oggie/staff/base_staff.html' %}
+
+{% block title %}Delete {{ delete_kind }} · Staff · Oggie{% endblock %}
+
+{% block staff_content %}
+<h1>Delete {{ delete_kind }}?</h1>
+
+<div class="card" style="border-left:6px solid var(--danger);">
+  <p><strong>You are about to permanently delete:</strong></p>
+  {% if delete_kind == 'cat' %}
+    <p>Cat <strong>"{{ object.name }}"</strong>{% if object.foundation %} (managed by {{ object.foundation.name }}){% endif %}.</p>
+    <p class="text-muted">This will also delete any adoption applications for this cat.</p>
+  {% elif delete_kind == 'user' %}
+    <p>User <strong>"{{ object.username }}"</strong> ({{ object.email|default:"no email" }}).</p>
+    <p class="text-muted">
+      This will remove their profile, adoption applications, and reported cats. Their donations will remain but become anonymous.
+    </p>
+  {% elif delete_kind == 'foundation' %}
+    <p>Foundation <strong>"{{ object.name }}"</strong>.</p>
+    <p class="text-muted">
+      Cats managed by this foundation will become <em>unclaimed</em> (not deleted), so no adoptable cat is lost.
+      Feeding sites, announcements, and donations tied to this foundation <strong>will be deleted</strong>.
+      Member user accounts remain but their foundation link will be cleared.
+    </p>
+  {% endif %}
+  <p><strong style="color:var(--danger);">This cannot be undone.</strong></p>
+
+  <form method="post" style="display:inline;">
+    {% csrf_token %}
+    <button class="btn btn-danger" type="submit">Yes, delete permanently</button>
+  </form>
+  <a class="btn btn-secondary" href="{% if delete_kind == 'cat' %}{% url 'staff_cat_list' %}{% elif delete_kind == 'user' %}{% url 'staff_user_list' %}{% else %}{% url 'staff_foundation_list' %}{% endif %}">Cancel</a>
+</div>
+{% endblock %}

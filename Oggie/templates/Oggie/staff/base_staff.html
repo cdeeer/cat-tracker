@@ -1,0 +1,18 @@
+{% extends 'Oggie/base.html' %}
+
+{% block content %}
+<div class="staff-layout">
+  <aside class="staff-sidebar">
+    <h3>Staff</h3>
+    <a href="{% url 'staff_dashboard' %}" {% if staff_active == 'dashboard' %}class="active"{% endif %}>Dashboard</a>
+    <a href="{% url 'staff_foundation_list' %}" {% if staff_active == 'foundations' %}class="active"{% endif %}>Foundations</a>
+    <a href="{% url 'staff_user_list' %}" {% if staff_active == 'users' %}class="active"{% endif %}>Users</a>
+    <a href="{% url 'staff_cat_list' %}" {% if staff_active == 'cats' %}class="active"{% endif %}>Cats</a>
+    <h3 class="mt-3">Also</h3>
+    <a href="/admin/">Django admin →</a>
+  </aside>
+  <main class="staff-main">
+    {% block staff_content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'Oggie/base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Edit {{ object.name }}{% else %}Add a cat{% endif %} · Oggie{% endblock %}
+
+{% block content %}
+<div style="max-width:760px; margin:0 auto;">
+  <h1>{% if object %}Edit {{ object.name }}{% else %}Add a cat{% endif %} 🐾</h1>
+  <form method="post" enctype="multipart/form-data" class="card">
+    {% csrf_token %}
+
+    <div class="field">
+      <label for="{{ form.name.id_for_label }}">Name</label>
+      {{ form.name }}{{ form.name.errors }}
+    </div>
+
+    <div class="row">
+      <div class="field col">
+        <label for="{{ form.gender.id_for_label }}">Gender</label>
+        {{ form.gender }}
+      </div>
+      <div class="field col">
+        <label for="{{ form.birthday.id_for_label }}">Birthday</label>
+        {{ form.birthday }}
+        <span class="helptext">{{ form.birthday.help_text }}</span>
+      </div>
+      <div class="field col">
+        <label for="{{ form.age_years.id_for_label }}">Estimated age</label>
+        {{ form.age_years }}
+        <span class="helptext">{{ form.age_years.help_text }}</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="{{ form.status.id_for_label }}">Status</label>
+      {{ form.status }}
+    </div>
+
+    <div class="field" style="background:var(--peach-light); padding:0.8rem 1rem; border-radius:12px;">
+      <strong>Care status</strong>
+      <div style="display:flex; gap:1.5rem; flex-wrap:wrap; margin-top:0.4rem;">
+        <label style="display:flex; align-items:center; gap:0.4rem; margin:0; cursor:pointer;">
+          {{ form.is_neutered }} Neutered/spayed
+        </label>
+        <label style="display:flex; align-items:center; gap:0.4rem; margin:0; cursor:pointer;">
+          {{ form.is_vaccinated }} Vaccinated
+        </label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="{{ form.description.id_for_label }}">Description <span class="text-muted" style="font-weight:500;">(optional, highly encouraged)</span></label>
+      {{ form.description }}
+      <span class="helptext">{{ form.description.help_text }}</span>
+      {{ form.description.errors }}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.photo.id_for_label }}">Photo <span class="text-muted" style="font-weight:500;">(optional)</span></label>
+      {{ form.photo }}{{ form.photo.errors }}
+      {% if not object.photo %}
+        <p class="text-muted" style="margin-top:0.3rem; font-size:0.9rem;">No photo on file — a 😼 emoji placeholder will show in listings until you upload one.</p>
+      {% endif %}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.feeding_sites.id_for_label }}">Feeding sites (optional)</label>
+      {{ form.feeding_sites }}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.parents.id_for_label }}">Known parents (optional)</label>
+      <span class="helptext">{{ form.parents.help_text }}</span>
+      {{ form.parents }}
+    </div>
+
+    <button class="btn btn-primary" type="submit">{% if object %}Save changes{% else %}Add cat{% endif %}</button>
+    <a class="btn btn-secondary" href="{% url 'foundation_cat_list' %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}
+
+{% block leaflet_js %}
+<script src="{% static 'Oggie/js/searchable-multi.js' %}"></script>
+{% endblock %}

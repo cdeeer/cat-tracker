@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Oggie · Cat Tracker{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'Oggie/img/logo.svg' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'Oggie/css/site.css' %}">
+  {% block leaflet_css %}{% endblock %}
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <header class="navbar">
+    <div class="container">
+      <a class="brand" href="{% url 'home' %}">
+        <img src="{% static 'Oggie/img/logo.svg' %}" alt="" width="32" height="32">
+        <span>Oggie</span>
+      </a>
+      <nav>
+        <a href="{% url 'cat_list' %}">Cats</a>
+        <a href="{% url 'cat_map' %}">Map</a>
+        <a href="{% url 'foundation_list' %}">Foundations</a>
+        {% if not user.profile.is_foundation %}
+          <a href="{% url 'donate' %}">Donate</a>
+        {% endif %}
+        {% if user.is_authenticated %}
+          <a href="{% url 'cat_report' %}">Report a stray</a>
+          {% if user.is_staff %}
+            <a href="{% url 'staff_dashboard' %}">Staff Dashboard</a>
+          {% elif user.profile.is_foundation %}
+            <a href="{% url 'foundation_dashboard' %}">Foundation Dashboard</a>
+          {% else %}
+            <a href="{% url 'my_dashboard' %}">My Dashboard</a>
+          {% endif %}
+          <a href="{% url 'account_settings' %}" title="Account settings">⚙️ {{ user.first_name|default:user.username }}</a>
+          <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary btn-sm">Logout</button>
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}">Login</a>
+          <a class="btn btn-primary btn-sm" href="{% url 'register' %}">Sign up</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <script src="{% static 'Oggie/js/site.js' %}" defer></script>
+  {% block leaflet_js %}{% endblock %}
+
+  <footer>
+    <div class="container">
+      <img src="{% static 'Oggie/img/paw-bg.svg' %}" class="paw-inline" alt="">
+      Oggie — helping stray cats find loving homes.
+      <img src="{% static 'Oggie/img/paw-bg.svg' %}" class="paw-inline" alt="">
+    </div>
+  </footer>
+</body>
+</html>

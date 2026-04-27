@@ -1,0 +1,50 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Review application · Oggie{% endblock %}
+
+{% block content %}
+<a href="{% url 'foundation_application_list' %}" class="text-muted">← All applications</a>
+<h1>Application from {{ application.applicant.username }}</h1>
+
+<div class="card mb-3">
+  <h3 class="mt-0">Cat: <a href="{{ application.cat.get_absolute_url }}">{{ application.cat.name }}</a></h3>
+  <p class="text-muted">
+    Submitted {{ application.submitted_at|date:"M j, Y, g:i a" }}
+    · Status: <span class="badge badge-{{ application.status }}">{{ application.get_status_display }}</span>
+  </p>
+</div>
+
+<div class="card mb-3">
+  <h3 class="mt-0">Applicant</h3>
+  <p><strong>Username:</strong> {{ application.applicant.username }}<br>
+  <strong>Email:</strong> {{ application.applicant.email|default:"—" }}</p>
+</div>
+
+<div class="card mb-3">
+  <h3 class="mt-0">Why they want to adopt</h3>
+  <p>{{ application.message|linebreaks }}</p>
+</div>
+
+<div class="card mb-3">
+  <h3 class="mt-0">Living situation</h3>
+  <p>{{ application.living_situation|linebreaks }}</p>
+</div>
+
+{% if application.status == 'pending' %}
+  <div class="card" style="display:flex; gap:1rem; flex-wrap:wrap;">
+    <form method="post" style="flex:1 1 200px;">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="approve">
+      <button class="btn btn-mint" type="submit" style="width:100%;">✓ Approve &amp; mark adopted</button>
+    </form>
+    <form method="post" style="flex:1 1 200px;" onsubmit="return confirm('Reject this application?');">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="reject">
+      <button class="btn btn-danger" type="submit" style="width:100%;">✗ Reject</button>
+    </form>
+  </div>
+  <p class="text-muted mt-2" style="font-size:0.9rem;">Approving will mark {{ application.cat.name }} as adopted and automatically reject any other pending applications for this cat.</p>
+{% else %}
+  <p class="text-muted">Reviewed {{ application.reviewed_at|date:"M j, Y, g:i a" }}.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends 'Oggie/base.html' %}
+{% load static %}
+
+{% block title %}Donate — PawTrack{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <div class="container">
+    <h1 class="page-title"><i class="fa-solid fa-heart"></i> Support Stray Cats</h1>
+    <p class="page-subtitle">Your generosity keeps the purring going 🐾</p>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-5">
+
+      <!-- Donation Form -->
+      <div class="col-lg-7">
+        <div class="form-card">
+          <div class="form-card-header">
+            <div class="form-header-icon">💛</div>
+            <h3>Make a Donation</h3>
+            <p>100% of donations go to caring for stray cats — food, medical care, and shelter.</p>
+          </div>
+
+          <form method="POST" class="mt-4">
+            {% csrf_token %}
+
+            <!-- Quick Amount Buttons -->
+            <div class="mb-4">
+              <label class="form-label fw-bold">Choose an amount</label>
+              <div class="amount-buttons d-flex flex-wrap gap-2 mb-3">
+                <button type="button" class="btn btn-amount" data-amount="5">$5</button>
+                <button type="button" class="btn btn-amount" data-amount="10">$10</button>
+                <button type="button" class="btn btn-amount" data-amount="25">$25</button>
+                <button type="button" class="btn btn-amount" data-amount="50">$50</button>
+                <button type="button" class="btn btn-amount" data-amount="100">$100</button>
+              </div>
+              {{ form.amount }}
+              {% if form.amount.errors %}
+                <div class="field-error">{{ form.amount.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold">{{ form.foundation.label }}</label>
+              {{ form.foundation }}
+              <small class="form-text">Choose a specific foundation or leave as general fund</small>
+            </div>
+
+            {% if not user.is_authenticated %}
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Your Name *</label>
+                {{ form.donor_name }}
+                {% if form.donor_name.errors %}<div class="field-error">{{ form.donor_name.errors }}</div>{% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Email Address *</label>
+                {{ form.donor_email }}
+                {% if form.donor_email.errors %}<div class="field-error">{{ form.donor_email.errors }}</div>{% endif %}
+              </div>
+            </div>
+            {% else %}
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Your Name (optional)</label>
+                {{ form.donor_name }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Email (optional)</label>
+                {{ form.donor_email }}
+              </div>
+            </div>
+            {% endif %}
+
+            <div class="mb-4">
+              <label class="form-label fw-bold">Leave a message (optional)</label>
+              {{ form.message }}
+            </div>
+
+            <div class="mb-4">
+              <div class="checkbox-card">
+                <div class="form-check">
+                  {{ form.is_anonymous }}
+                  <label class="form-check-label" for="{{ form.is_anonymous.id_for_label }}">
+                    🕵️ {{ form.is_anonymous.label }}
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-paw btn-lg w-100">
+              <i class="fa-solid fa-heart me-2"></i>Complete Donation
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Sidebar Info -->
+      <div class="col-lg-5">
+        <div class="donate-info-card">
+          <h4>Where does your money go? 💰</h4>
+          <div class="donate-breakdown mt-3">
+            <div class="breakdown-item">
+              <div class="breakdown-bar" style="width: 45%"></div>
+              <span class="breakdown-pct">45%</span>
+              <span class="breakdown-label">🥣 Food & Nutrition</span>
+            </div>
+            <div class="breakdown-item">
+              <div class="breakdown-bar breakdown-medical" style="width: 30%"></div>
+              <span class="breakdown-pct">30%</span>
+              <span class="breakdown-label">💉 Veterinary Care</span>
+            </div>
+            <div class="breakdown-item">
+              <div class="breakdown-bar breakdown-shelter" style="width: 15%"></div>
+              <span class="breakdown-pct">15%</span>
+              <span class="breakdown-label">🏠 Shelter & Housing</span>
+            </div>
+            <div class="breakdown-item">
+              <div class="breakdown-bar breakdown-ops" style="width: 10%"></div>
+              <span class="breakdown-pct">10%</span>
+              <span class="breakdown-label">⚙️ Operations</span>
+            </div>
+          </div>
+        </div>
+
+        {% if foundations %}
+        <div class="foundation-list-card mt-4">
+          <h5>Partner Foundations</h5>
+          {% for foundation in foundations %}
+          <div class="foundation-mini">
+            <strong>{{ foundation.name }}</strong>
+            <p>{{ foundation.description|truncatechars:60 }}</p>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="secure-badge mt-4 text-center">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Secure &amp; Safe Donations</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}

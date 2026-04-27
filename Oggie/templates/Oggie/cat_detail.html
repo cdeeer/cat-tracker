@@ -1,0 +1,124 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}{{ cat.name }} · Oggie{% endblock %}
+
+{% block content %}
+<div class="cat-detail">
+  {% if cat.photo %}
+    <img class="cat-photo-lg" src="{{ cat.photo.url }}" alt="{{ cat.name }}" data-cat-photo onerror="oggieCatPhotoFallback(this)">
+  {% else %}
+    <div class="cat-photo-lg cat-photo-emoji" aria-label="No photo uploaded"><span class="cat-glyph">😼</span></div>
+  {% endif %}
+  <div class="cat-info">
+    <h1>
+      {{ cat.name }}
+      <span class="badge badge-{{ cat.status }}">{{ cat.get_status_display }}</span>
+      {% if cat.is_verified %}
+        <span class="badge badge-verified" title="Verified by {{ cat.foundation.name }}">✓ Verified</span>
+      {% elif not cat.foundation %}
+        <span class="badge badge-stray">Reported by community</span>
+      {% endif %}
+    </h1>
+    <p class="text-muted">
+      {% if cat.foundation %}
+        Cared for by <a href="{% url 'foundation_detail' cat.foundation.pk %}">{{ cat.foundation.name }}</a>
+      {% else %}
+        Awaiting a partner foundation to verify &amp; claim this report.
+      {% endif %}
+    </p>
+    <ul class="cat-facts" style="list-style:none; padding:0;">
+      <li><strong>Gender:</strong> {{ cat.get_gender_display }}</li>
+      <li><strong>Age:</strong> {{ cat.age_display }}{% if cat.birthday %} <span class="text-muted">(born {{ cat.birthday|date:"M j, Y" }})</span>{% endif %}</li>
+      <li>
+        <strong>Care status:</strong>
+        <span class="badge {% if cat.is_neutered %}badge-available{% else %}badge-adopted{% endif %}">
+          {% if cat.is_neutered %}✓{% else %}✗{% endif %} Neutered
+        </span>
+        <span class="badge {% if cat.is_vaccinated %}badge-available{% else %}badge-adopted{% endif %}">
+          {% if cat.is_vaccinated %}✓{% else %}✗{% endif %} Vaccinated
+        </span>
+      </li>
+      <li><strong>Profile created:</strong> {{ cat.created_at|date:"M j, Y" }}</li>
+    </ul>
+    <p>{{ cat.description|linebreaks }}</p>
+
+    {% if cat.found_address or cat.found_lat %}
+      <p class="text-muted">
+        <strong>Found near:</strong>
+        {% if cat.found_address %}{{ cat.found_address }}{% else %}{{ cat.found_lat }}, {{ cat.found_lng }}{% endif %}
+        · <a href="{% url 'cat_map' %}?cat={{ cat.slug }}">View on map</a>
+      </p>
+    {% endif %}
+
+    {% if feeding_sites %}
+      <p><strong>Seen at feeding sites:</strong>
+        {% for s in feeding_sites %}<span class="badge badge-in_care">{{ s.name }}</span>{% endfor %}
+      </p>
+    {% endif %}
+
+    {% with parents=cat.parents.all children=cat.children.all %}
+    {% if parents or children %}
+      <div class="family-tree card" style="background:var(--peach-light); margin-top:1rem;">
+        <strong>🐾 Family</strong>
+        {% if parents %}
+          <p class="mt-1 mb-0"><em>Parents:</em>
+            {% for p in parents %}<a href="{{ p.get_absolute_url }}">{{ p.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+          </p>
+        {% endif %}
+        {% if children %}
+          <p class="mt-1 mb-0"><em>Kittens:</em>
+            {% for c in children %}<a href="{{ c.get_absolute_url }}">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+          </p>
+        {% endif %}
+      </div>
+    {% endif %}
+    {% endwith %}
+
+    {% if open_incidents %}
+      <div class="card mt-2" style="background:var(--peach-light); border-left:4px solid var(--danger); padding:0.8rem 1rem;">
+        <strong style="color:var(--danger);">🚨 {{ open_incidents }} open incident{{ open_incidents|pluralize }} reported</strong> — the foundation has been notified.
+      </div>
+    {% endif %}
+
+    <div class="mt-3" style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+      {% if user.is_authenticated and user.profile.is_foundation %}
+        {# Foundation user: show Claim button for unclaimed cats #}
+        {% if not cat.foundation %}
+          <form method="post" action="{% url 'cat_claim' cat.slug %}" style="display:inline; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+            {% csrf_token %}
+            {% if user.profile.foundations.count > 1 %}
+              <select name="f" required>
+                {% for f in user.profile.foundations.all %}
+                  <option value="{{ f.pk }}">{{ f.name }}</option>
+                {% endfor %}
+              </select>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">🏠 Claim {{ cat.name }}{% if user.profile.foundations.count == 1 %} for {{ user.profile.primary_foundation.name }}{% endif %}</button>
+          </form>
+        {% elif cat.foundation in user.profile.foundations.all %}
+          <a class="btn btn-secondary" href="{% url 'foundation_cat_update' cat.slug %}">Edit this cat</a>
+        {% endif %}
+      {% else %}
+        {# Adopter (or anonymous): show Adopt button when cat is adoptable. #}
+        {% if cat.status == 'available' or cat.status == 'in_care' %}
+          {% if cat.foundation %}
+            {% if already_applied %}
+              <span class="btn btn-secondary" style="cursor:default;">✓ You've applied</span>
+            {% else %}
+              <a class="btn btn-primary" href="{% url 'cat_apply' cat.slug %}">🐾 Apply to adopt</a>
+            {% endif %}
+          {% endif %}
+        {% elif cat.status == 'adopted' %}
+          <span class="btn btn-secondary" style="cursor:default;">💛 Adopted — found a forever home</span>
+        {% endif %}
+      {% endif %}
+      <a class="btn btn-danger" href="{% url 'cat_incident' cat.slug %}">🚨 Report incident</a>
+      {% if user.is_staff %}
+        <a class="btn btn-secondary" href="{% url 'staff_cat_update' cat.slug %}">Staff: edit</a>
+        <a class="btn btn-secondary" href="{% url 'staff_cat_merge' cat.slug %}">Staff: merge into…</a>
+      {% endif %}
+      <a class="btn btn-secondary" href="{% url 'cat_list' %}">← All cats</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

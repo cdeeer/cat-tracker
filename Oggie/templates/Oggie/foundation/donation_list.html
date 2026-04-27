@@ -1,0 +1,33 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Donations · Oggie{% endblock %}
+
+{% block content %}
+<h1>Donations received</h1>
+<p class="card text-center"><strong>Total:</strong> ₱{{ total|floatformat:2 }}</p>
+
+{% if donations %}
+  <table class="table card" style="padding:0; overflow:hidden;">
+    <thead><tr><th>Date</th><th>From</th><th>Email</th><th>Amount</th><th>Message</th></tr></thead>
+    <tbody>
+      {% for d in donations %}
+        <tr>
+          <td>{{ d.created_at|date:"M j, Y" }}</td>
+          <td>
+            {% if d.is_anonymous %}
+              <em>Anonymous</em>
+            {% else %}
+              {{ d.name }}{% if d.donor %} <span class="text-muted">(@{{ d.donor.username }})</span>{% endif %}
+            {% endif %}
+          </td>
+          <td>{% if d.is_anonymous %}<span class="text-muted">—</span>{% else %}{{ d.email }}{% endif %}</td>
+          <td>₱{{ d.amount }}</td>
+          <td>{{ d.message|default:"—"|truncatewords:15 }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="empty-state card"><p>No donations yet.</p></div>
+{% endif %}
+{% endblock %}

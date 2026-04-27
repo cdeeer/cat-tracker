@@ -1,0 +1,53 @@
+{% extends 'Oggie/staff/base_staff.html' %}
+
+{% block title %}Merge {{ source.name }} · Staff · Oggie{% endblock %}
+
+{% block staff_content %}
+<h1>Merge "{{ source.name }}" into an existing profile</h1>
+
+<div class="card mb-3" style="display:flex; gap:1rem; align-items:center;">
+  {% if source.photo %}<img src="{{ source.photo.url }}" alt="" style="width:96px;height:96px;object-fit:cover;border-radius:14px;" data-cat-photo onerror="oggieCatPhotoFallback(this)">{% else %}<div class="cat-photo-emoji-sm" style="width:96px;height:96px;font-size:44px;" aria-hidden="true"><span class="cat-glyph">😼</span></div>{% endif %}
+  <div>
+    <strong>{{ source.name }}</strong><br>
+    <span class="text-muted">
+      {% if source.reported_by %}Reported by {{ source.reported_by.username }} · {% endif %}
+      {{ source.created_at|date:"M j, Y" }}
+      {% if source.foundation %} · {{ source.foundation.name }}{% else %} · <em>unclaimed</em>{% endif %}
+    </span>
+  </div>
+</div>
+
+<form method="post" class="card">
+  {% csrf_token %}
+  <div class="field">
+    <label for="{{ form.target.id_for_label }}">{{ form.target.label }}</label>
+    {{ form.target }}
+    {% if form.target.help_text %}<span class="helptext">{{ form.target.help_text }}</span>{% endif %}
+    {{ form.target.errors }}
+  </div>
+
+  <div class="field" style="background:var(--peach-light); padding:0.8rem 1rem; border-radius:12px;">
+    <label for="{{ form.prefer_source.id_for_label }}" style="display:flex; align-items:flex-start; gap:0.6rem; margin:0; cursor:pointer;">
+      {{ form.prefer_source }}
+      <span>
+        <strong>Prefer source fields</strong>
+        <span class="helptext" style="display:block; margin-top:0.2rem;">{{ form.prefer_source.help_text }}</span>
+      </span>
+    </label>
+  </div>
+
+  <div class="card" style="background:var(--cream); margin-bottom:1rem;">
+    <strong>What this merge does</strong>
+    <ul style="margin:0.5rem 0 0; padding-left:1.2rem;">
+      <li>Location, address, description, and photo are copied from <em>{{ source.name }}</em> onto the target — filling blanks by default, or overwriting if "Prefer source" is on.</li>
+      <li>Target's feeding sites and parents get any new ones from <em>{{ source.name }}</em> (duplicates are skipped).</li>
+      <li>Any kittens that had <em>{{ source.name }}</em> as a parent are re-pointed at the target, so lineage survives.</li>
+      <li>If the target has no reporter on file, the community credit from <em>{{ source.name }}</em> is inherited.</li>
+      <li><em>{{ source.name }}</em> is then <strong style="color:var(--danger);">permanently deleted</strong>, along with any pending adoption applications on it.</li>
+    </ul>
+  </div>
+
+  <button class="btn btn-danger" type="submit">Merge &amp; delete duplicate</button>
+  <a class="btn btn-secondary" href="{% url 'staff_cat_update' source.slug %}">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Thank You! — PawTrack{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 text-center">
+        <div class="success-card">
+          <div class="success-icon">🎉</div>
+          <h2>Thank You!</h2>
+          <p class="lead">Your donation has been received and will help keep stray cats fed, healthy, and loved.</p>
+          <div class="paw-prints my-4 fs-2">🐾 🐱 🐾</div>
+          <p>Every dollar makes a difference in the life of a stray cat. You're a true hero!</p>
+          <div class="d-flex gap-3 justify-content-center mt-4 flex-wrap">
+            <a href="{% url 'cat_list' %}" class="btn btn-paw">Browse Cats</a>
+            <a href="{% url 'donate' %}" class="btn btn-paw-outline">Donate Again</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

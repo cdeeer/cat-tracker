@@ -1,0 +1,31 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Announcements · Oggie{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+  <h1 class="mt-0">Announcements 📣</h1>
+  <a class="btn btn-primary" href="{% url 'foundation_announcement_create' %}">+ New announcement</a>
+</div>
+<p class="text-muted">Active announcements appear as gentle alerts on the homepage.</p>
+
+{% if announcements %}
+  <ul style="list-style:none; padding:0;">
+    {% for a in announcements %}
+      <li class="announcement mb-2">
+        <div class="announcement-head">
+          <h3>{{ a.title }} {% if not a.is_active %}<span class="badge badge-adopted">Inactive</span>{% endif %}</h3>
+          <span class="announcement-source">{{ a.created_at|date:"M j, Y" }}</span>
+        </div>
+        <p>{{ a.body|linebreaksbr|truncatewords:30 }}</p>
+        <div class="mt-1">
+          <a class="btn btn-sm btn-secondary" href="{% url 'foundation_announcement_update' a.pk %}">Edit</a>
+          <a class="btn btn-sm btn-danger btn-icon" href="{% url 'foundation_announcement_delete' a.pk %}" title="Delete announcement" aria-label="Delete announcement">{% include 'Oggie/_icon_trash.html' %}</a>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="empty-state card"><p>No announcements yet. <a href="{% url 'foundation_announcement_create' %}">Post your first one</a>.</p></div>
+{% endif %}
+{% endblock %}

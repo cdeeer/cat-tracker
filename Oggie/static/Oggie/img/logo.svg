@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <style>
+      .tunic { fill: #1e3799; }
+      .lace { fill: #ffffff; }
+      .cat-base { fill: #e67e22; }
+      .cat-inner { fill: #f8bbd0; }
+      .cat-muzzle { fill: #fff3e0; }
+      .cat-stripe { stroke: #d35400; stroke-width: 4; stroke-linecap: round; fill: none; }
+      .hat-back { fill: #1a252f; }
+      .hat-crown { fill: #2c3e50; }
+      .hat-front { fill: #34495e; }
+      .hat-band { fill: #c0392b; }
+      .feather-back { fill: #bdc3c7; }
+      .feather-main { fill: #ffffff; }
+    </style>
+  </defs>
+
+  <g id="shoulders-tunic">
+    <path class="tunic" d="M 120 280 C 80 340, 50 400, 50 400 L 350 400 C 350 400, 320 340, 280 280 Z" />
+    <path d="M 200 350 L 200 400" stroke="#f1c40f" stroke-width="5" stroke-linecap="round" />
+    
+    <path class="lace" d="M 120 280 L 280 280 L 250 350 L 150 350 Z" />
+    <circle class="lace" cx="150" cy="350" r="18" />
+    <circle class="lace" cx="183" cy="360" r="18" />
+    <circle class="lace" cx="217" cy="360" r="18" />
+    <circle class="lace" cx="250" cy="350" r="18" />
+  </g>
+
+  <g id="hat-back-brim">
+    <ellipse class="hat-back" cx="200" cy="180" rx="160" ry="30" />
+  </g>
+
+  <g id="cat-head">
+    <polygon class="cat-base" points="145,190 80,120 115,210" />
+    <polygon class="cat-base" points="255,190 320,120 285,210" />
+    <polygon class="cat-inner" points="135,190 90,140 115,200" />
+    <polygon class="cat-inner" points="265,190 310,140 285,200" />
+
+    <ellipse class="cat-base" cx="200" cy="245" rx="85" ry="70" />
+    
+    <polygon class="cat-base" points="120,245 90,265 125,280" />
+    <polygon class="cat-base" points="280,245 310,265 275,280" />
+
+    <path class="cat-stripe" d="M 200 185 L 200 215" stroke-width="5" />
+    <path class="cat-stripe" d="M 185 188 L 190 212" />
+    <path class="cat-stripe" d="M 215 188 L 210 212" />
+    
+    <circle cx="160" cy="205" r="3" fill="#d35400" />
+    <circle cx="240" cy="205" r="3" fill="#d35400" />
+
+    <ellipse class="cat-muzzle" cx="182" cy="270" rx="22" ry="16" />
+    <ellipse class="cat-muzzle" cx="218" cy="270" rx="22" ry="16" />
+
+    <polygon points="192,260 208,260 200,270" fill="#ff7675" />
+
+    <path d="M 188 275 Q 194 283 200 273 Q 206 283 212 275" stroke="#2d3436" stroke-width="2.5" fill="none" stroke-linecap="round" />
+
+    <circle cx="160" cy="235" r="16" fill="#2d3436" />
+    <circle cx="240" cy="235" r="16" fill="#2d3436" />
+    <circle cx="155" cy="228" r="6" fill="#ffffff" />
+    <circle cx="165" cy="240" r="2.5" fill="#ffffff" />
+    <circle cx="235" cy="228" r="6" fill="#ffffff" />
+    <circle cx="245" cy="240" r="2.5" fill="#ffffff" />
+
+    <path d="M 150 260 L 95 250" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M 150 268 L 90 268" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M 150 276 L 95 286" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M 250 260 L 305 250" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M 250 268 L 310 268" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M 250 276 L 305 286" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+
+  <g id="hat-top">
+    <path class="hat-crown" d="M 135 180 L 150 85 C 150 60, 250 60, 250 85 L 265 180 Z" />
+    
+    <path class="hat-band" d="M 134 170 C 165 185, 235 185, 266 170 L 267 180 C 235 195, 165 195, 133 180 Z" />
+    
+    <rect x="185" y="172" width="30" height="14" rx="2" fill="none" stroke="#f1c40f" stroke-width="4" />
+    <rect x="196" y="172" width="8" height="14" fill="#f1c40f" />
+
+    <path class="feather-back" d="M 265 150 C 340 70, 210 10, 60 50 C 140 10, 270 40, 280 150 Z" />
+    <path class="feather-main" d="M 260 150 C 320 80, 200 20, 70 60 C 140 20, 250 50, 270 150 Z" />
+  </g>
+
+  <g id="hat-front-brim">
+    <path class="hat-front" d="M 30 180 C 80 250, 280 250, 340 180 C 370 140, 380 90, 350 60 C 320 90, 300 130, 260 160 C 210 190, 110 190, 30 180 Z" stroke="#2c3e50" stroke-width="2" />
+  </g>
+</svg>

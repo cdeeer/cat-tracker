@@ -1,0 +1,97 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Adoption applications · Oggie{% endblock %}
+
+{% block content %}
+<h1>Adoption applications</h1>
+
+<form method="get" class="card mb-3">
+  <div class="row" style="align-items:flex-end;">
+    <div class="field col" style="flex:2 1 260px; margin-bottom:0;">
+      <label for="q">Search by cat or applicant</label>
+      <input type="search" name="q" id="q" value="{{ q }}"
+             placeholder="e.g. Oggie, Alice, @username…">
+    </div>
+    <div class="field col" style="flex:1 1 170px; margin-bottom:0;">
+      <label for="status">Status</label>
+      <select name="status" id="status">
+        <option value="">All statuses</option>
+        {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field col" style="flex:1 1 160px; margin-bottom:0;">
+      <label for="sort">Sort by date</label>
+      <select name="sort" id="sort">
+        <option value="-submitted_at" {% if sort == '-submitted_at' %}selected{% endif %}>Newest first</option>
+        <option value="submitted_at" {% if sort == 'submitted_at' %}selected{% endif %}>Oldest first</option>
+      </select>
+    </div>
+  </div>
+  <div style="display:flex; gap:0.6rem; margin-top:0.8rem; flex-wrap:wrap;">
+    <button class="btn btn-primary" type="submit">Apply</button>
+    {% if q or selected_status or sort != '-submitted_at' %}
+      <a class="btn btn-secondary" href="{% url 'foundation_application_list' %}">Clear all</a>
+    {% endif %}
+  </div>
+</form>
+
+{% if applications %}
+  <p class="text-muted" style="font-size:0.9rem; margin-bottom:0.5rem;">
+    {{ paginator.count }} application{{ paginator.count|pluralize }}
+    {% if q %} matching <em>"{{ q }}"</em>{% endif %}
+    {% if selected_status %}with status <strong>{{ selected_status }}</strong>{% endif %}
+  </p>
+  <table class="table card" style="padding:0; overflow:hidden;">
+    <thead>
+      <tr>
+        <th>Applicant</th>
+        <th>Cat</th>
+        <th>
+          Submitted
+          <a href="?q={{ q }}&status={{ selected_status }}&sort={% if sort == '-submitted_at' %}submitted_at{% else %}-submitted_at{% endif %}"
+             style="font-size:0.8rem; font-weight:400; margin-left:0.3rem;">
+            {% if sort == '-submitted_at' %}↓{% else %}↑{% endif %}
+          </a>
+        </th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for app in applications %}
+        <tr>
+          <td>
+            {{ app.applicant.get_full_name|default:app.applicant.username }}
+            <span class="text-muted" style="font-size:0.85rem;">· @{{ app.applicant.username }}</span>
+          </td>
+          <td><a href="{{ app.cat.get_absolute_url }}">{{ app.cat.name }}</a></td>
+          <td>{{ app.submitted_at|date:"M j, Y" }}</td>
+          <td><span class="badge badge-{{ app.status }}">{{ app.get_status_display }}</span></td>
+          <td style="text-align:right;">
+            <a class="btn btn-sm btn-secondary" href="{% url 'foundation_application_detail' app.pk %}">Review</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if is_paginated %}
+    <div class="text-center mt-3">
+      {% if page_obj.has_previous %}
+        <a class="btn btn-secondary btn-sm"
+           href="?q={{ q }}&status={{ selected_status }}&sort={{ sort }}&page={{ page_obj.previous_page_number }}">← Previous</a>
+      {% endif %}
+      <span style="margin:0 1rem;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a class="btn btn-secondary btn-sm"
+           href="?q={{ q }}&status={{ selected_status }}&sort={{ sort }}&page={{ page_obj.next_page_number }}">Next →</a>
+      {% endif %}
+    </div>
+  {% endif %}
+{% else %}
+  <div class="empty-state card">
+    <p>No applications{% if q %} matching "{{ q }}"{% endif %}{% if selected_status %} with status {{ selected_status }}{% endif %}.</p>
+  </div>
+{% endif %}
+{% endblock %}

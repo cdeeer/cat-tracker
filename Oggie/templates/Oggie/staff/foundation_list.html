@@ -1,0 +1,32 @@
+{% extends 'Oggie/staff/base_staff.html' %}
+
+{% block title %}Foundations · Staff · Oggie{% endblock %}
+
+{% block staff_content %}
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+  <h1 class="mt-0">Foundations</h1>
+  <a class="btn btn-primary" href="{% url 'staff_foundation_create' %}">+ New foundation</a>
+</div>
+
+{% if foundations %}
+  <table class="table card mt-2" style="padding:0; overflow:hidden;">
+    <thead><tr><th>Name</th><th>Contact</th><th>Cats</th><th>Members</th><th></th></tr></thead>
+    <tbody>
+      {% for f in foundations %}
+        <tr>
+          <td><a href="{{ f.get_absolute_url }}">{{ f.name }}</a></td>
+          <td>{{ f.contact_email }}</td>
+          <td>{{ f.cats.count }}</td>
+          <td>{{ f.members.count }}</td>
+          <td style="text-align:right;">
+            <a class="btn btn-sm btn-secondary" href="{% url 'staff_foundation_update' f.pk %}">Edit</a>
+            <a class="btn btn-sm btn-danger btn-icon" href="{% url 'staff_foundation_delete' f.pk %}" title="Delete foundation" aria-label="Delete foundation">{% include 'Oggie/_icon_trash.html' %}</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="empty-state card"><p>No foundations yet. <a href="{% url 'staff_foundation_create' %}">Create the first one</a>.</p></div>
+{% endif %}
+{% endblock %}

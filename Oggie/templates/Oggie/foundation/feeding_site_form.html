@@ -1,0 +1,71 @@
+{% extends 'Oggie/base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Edit{% else %}New{% endif %} feeding site · Oggie{% endblock %}
+
+{% block leaflet_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+{% endblock %}
+
+{% block content %}
+<div style="max-width:760px; margin:0 auto;">
+  <h1>{% if object %}Edit{% else %}New{% endif %} feeding site 🍽️</h1>
+  {% if form.non_field_errors %}
+    <ul class="messages"><li class="error">{{ form.non_field_errors }}</li></ul>
+  {% endif %}
+  <form method="post" class="card">
+    {% csrf_token %}
+
+    <div class="field">
+      <label for="{{ form.name.id_for_label }}">Site name</label>
+      {{ form.name }}
+      {{ form.name.errors }}
+    </div>
+
+    <div class="field">
+      <label>Location (click the map)</label>
+      <div id="site-map" class="map-container" style="min-height:380px; margin-bottom:0.6rem;"></div>
+      {{ form.latitude }}
+      {{ form.longitude }}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.schedule.id_for_label }}">Schedule</label>
+      {{ form.schedule }}
+      <span class="helptext">{{ form.schedule.help_text }}</span>
+    </div>
+
+    <div class="field">
+      <label for="{{ form.point_persons.id_for_label }}">Point persons</label>
+      <span class="helptext">{{ form.point_persons.help_text }} Start typing to filter.</span>
+      {{ form.point_persons }}
+      {{ form.point_persons.errors }}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.contact_details.id_for_label }}">Contact details</label>
+      {{ form.contact_details }}
+      <span class="helptext">{{ form.contact_details.help_text }}</span>
+      {{ form.contact_details.errors }}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.notes.id_for_label }}">Notes</label>
+      {{ form.notes }}
+    </div>
+
+    <button class="btn btn-primary" type="submit">{% if object %}Save{% else %}Add site{% endif %}</button>
+    <a class="btn btn-secondary" href="{% url 'foundation_feeding_site_list' %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}
+
+{% block leaflet_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="{% static 'Oggie/js/map.js' %}"></script>
+<script src="{% static 'Oggie/js/searchable-multi.js' %}"></script>
+<script>
+  const map = OggieMap.init('site-map');
+  OggieMap.enablePicker(map, '{{ form.latitude.id_for_label }}', '{{ form.longitude.id_for_label }}');
+</script>
+{% endblock %}

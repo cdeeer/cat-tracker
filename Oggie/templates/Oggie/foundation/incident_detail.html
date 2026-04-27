@@ -1,0 +1,78 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Incident · {{ incident.cat.name }} · Oggie{% endblock %}
+
+{% block content %}
+<a href="{% url 'foundation_incident_list' %}" class="text-muted">← All incidents</a>
+
+<div class="card mt-2" style="border-left:5px solid
+  {% if incident.incident_type == 'injured' %}#E07A5F
+  {% elif incident.incident_type == 'sick' %}#F4A261
+  {% elif incident.incident_type == 'abandoned' %}#9B72AA
+  {% elif incident.incident_type == 'missing' %}#457B9D
+  {% elif incident.incident_type == 'update_info' %}#2A9D8F
+  {% else %}#6C757D{% endif %};">
+  <div style="display:flex; gap:1rem; align-items:flex-start; flex-wrap:wrap;">
+    <div style="font-size:3rem; line-height:1;">
+      {% if incident.incident_type == 'injured' %}🩹
+      {% elif incident.incident_type == 'sick' %}🤒
+      {% elif incident.incident_type == 'abandoned' %}💔
+      {% elif incident.incident_type == 'missing' %}🔍
+      {% elif incident.incident_type == 'update_info' %}📝
+      {% else %}⚠️{% endif %}
+    </div>
+    <div style="flex:1; min-width:0;">
+      <h1 class="mt-0">{{ incident.incident_type_label }} — <a href="{{ incident.cat.get_absolute_url }}">{{ incident.cat.name }}</a></h1>
+      <p class="text-muted mb-0">
+        Reported by <strong>{{ incident.reporter_display }}</strong>
+        {% if incident.reporter_email %} · {{ incident.reporter_email }}{% endif %}
+        · {{ incident.created_at|date:"M j, Y, g:i a" }}
+        · Status: <span class="badge
+          {% if incident.status == 'open' %}badge-in_care
+          {% elif incident.status == 'acknowledged' %}badge-pending
+          {% else %}badge-available{% endif %}">
+          {{ incident.get_status_display }}
+        </span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-3">
+  <div class="col">
+    <div class="card">
+      <h3 class="mt-0">What was reported</h3>
+      <p>{{ incident.description|linebreaks }}</p>
+      {% if incident.photo %}
+        <img src="{{ incident.photo.url }}" alt="Incident photo"
+             style="max-width:100%; max-height:400px; object-fit:contain; border-radius:12px; margin-top:0.5rem;">
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <h3 class="mt-0">Update status</h3>
+      {% if incident.acknowledged_at %}
+        <p class="text-muted" style="font-size:0.9rem;">Acknowledged {{ incident.acknowledged_at|date:"M j, Y, g:i a" }}</p>
+      {% endif %}
+      {% if incident.resolved_at %}
+        <p class="text-muted" style="font-size:0.9rem;">Resolved {{ incident.resolved_at|date:"M j, Y, g:i a" }} by {{ incident.resolved_by.get_full_name|default:incident.resolved_by.username }}</p>
+      {% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="field">
+          <label for="{{ form.status.id_for_label }}">Status</label>
+          {{ form.status }}
+        </div>
+        <div class="field">
+          <label for="{{ form.foundation_notes.id_for_label }}">Notes for your team</label>
+          {{ form.foundation_notes }}
+          <span class="helptext">Internal notes — not shown to the reporter.</span>
+        </div>
+        <button class="btn btn-primary" type="submit">Save update</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

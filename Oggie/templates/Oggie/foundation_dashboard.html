@@ -1,0 +1,259 @@
+{% extends 'Oggie/base.html' %}
+{% load static %}
+
+{% block title %}{{ foundation.name }} Dashboard — PawTrack{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+      {% if foundation.logo %}
+        <img src="{{ foundation.logo.url }}" alt="{{ foundation.name }}" class="foundation-header-logo">
+      {% else %}
+        <div class="foundation-header-placeholder">🏛️</div>
+      {% endif %}
+      <div>
+        <h1 class="page-title mb-0">{{ foundation.name }}</h1>
+        <p class="page-subtitle mb-0">
+          Foundation Dashboard &nbsp;
+          {% if foundation.is_verified %}
+            <span class="verified-badge">✅ Verified</span>
+          {% else %}
+            <span class="pending-verification-badge">⏳ Pending Verification</span>
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+
+    <!-- Stats -->
+    <div class="row g-4 mb-5">
+      <div class="col-6 col-md-3">
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon">🐱</div>
+          <div class="dash-stat-number">{{ cats.count }}</div>
+          <div class="dash-stat-label">Cats in Care</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon">📝</div>
+          <div class="dash-stat-number">{{ applications.count }}</div>
+          <div class="dash-stat-label">Applications</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon">💛</div>
+          <div class="dash-stat-number">{{ donations.count }}</div>
+          <div class="dash-stat-label">Donations Received</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon">💰</div>
+          <div class="dash-stat-number">${{ total_donations }}</div>
+          <div class="dash-stat-label">Total Raised</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-5">
+
+      <!-- Add Cat Form -->
+      <div class="col-lg-4">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h4><i class="fa-solid fa-plus-circle me-2"></i>Add a Cat</h4>
+            <p>Add a cat to your foundation's care</p>
+          </div>
+          <form method="POST" action="{% url 'add_cat_foundation' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label fw-bold">Name *</label>
+              {{ cat_form.name }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Description *</label>
+              {{ cat_form.description }}
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label fw-bold">Gender</label>
+                {{ cat_form.gender }}
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold">Age</label>
+                {{ cat_form.estimated_age }}
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Color</label>
+              {{ cat_form.color }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Location *</label>
+              {{ cat_form.location }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Photo</label>
+              {{ cat_form.photo }}
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <div class="form-check">
+                  {{ cat_form.is_vaccinated }}
+                  <label class="form-check-label" for="{{ cat_form.is_vaccinated.id_for_label }}">Vaccinated</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-check">
+                  {{ cat_form.is_neutered }}
+                  <label class="form-check-label" for="{{ cat_form.is_neutered.id_for_label }}">Neutered</label>
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-paw w-100">
+              <i class="fa-solid fa-plus me-1"></i>Add Cat
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+
+        <!-- Adoption Applications -->
+        <div class="dash-card mb-4">
+          <div class="dash-card-header">
+            <h4><i class="fa-solid fa-house-heart me-2"></i>Adoption Applications</h4>
+          </div>
+          {% if applications %}
+          <div class="table-responsive">
+            <table class="table paw-table">
+              <thead>
+                <tr>
+                  <th>Cat</th>
+                  <th>Applicant</th>
+                  <th>Has Pets</th>
+                  <th>Has Children</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for app in applications %}
+                <tr>
+                  <td><strong>{{ app.cat.name }}</strong></td>
+                  <td>{{ app.applicant.get_full_name|default:app.applicant.username }}</td>
+                  <td>{% if app.has_other_pets %}✅{% else %}❌{% endif %}</td>
+                  <td>{% if app.has_children %}✅{% else %}❌{% endif %}</td>
+                  <td>
+                    <span class="app-status app-status-{{ app.status }}">
+                      {% if app.status == 'pending' %}⏳{% elif app.status == 'approved' %}✅{% else %}❌{% endif %}
+                      {{ app.get_status_display }}
+                    </span>
+                  </td>
+                  <td>
+                    {% if app.status == 'pending' %}
+                    <form method="POST" action="{% url 'update_application_status' app.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <input type="hidden" name="status" value="approved">
+                      <button type="submit" class="btn btn-sm btn-paw">Approve</button>
+                    </form>
+                    <form method="POST" action="{% url 'update_application_status' app.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <input type="hidden" name="status" value="rejected">
+                      <button type="submit" class="btn btn-sm btn-danger-outline">Reject</button>
+                    </form>
+                    {% else %}
+                    <span class="text-muted">Reviewed</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="empty-mini"><span>📝</span> No adoption applications yet.</div>
+          {% endif %}
+        </div>
+
+        <!-- Cats in Care -->
+        <div class="dash-card mb-4">
+          <div class="dash-card-header">
+            <h4><i class="fa-solid fa-cat me-2"></i>Cats in Your Care</h4>
+          </div>
+          {% if cats %}
+          <div class="row g-3">
+            {% for cat in cats %}
+            <div class="col-md-4 col-6">
+              <div class="cat-mini-card">
+                {% if cat.photo %}
+                  <img src="{{ cat.photo.url }}" alt="{{ cat.name }}">
+                {% else %}
+                  <div class="cat-mini-img-placeholder">🐱</div>
+                {% endif %}
+                <div class="cat-mini-info">
+                  <strong>{{ cat.name }}</strong>
+                  <span class="status-badge status-{{ cat.status }}">{{ cat.get_status_display }}</span>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-mini"><span>🐱</span> No cats in your care yet. Add one using the form!</div>
+          {% endif %}
+        </div>
+
+        <!-- Donations Received -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h4><i class="fa-solid fa-heart me-2"></i>Donations Received</h4>
+          </div>
+          {% if donations %}
+          <div class="table-responsive">
+            <table class="table paw-table">
+              <thead>
+                <tr>
+                  <th>Donor</th>
+                  <th>Amount</th>
+                  <th>Message</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for donation in donations %}
+                <tr>
+                  <td>
+                    {% if donation.is_anonymous %}
+                      <em>Anonymous</em>
+                    {% elif donation.donor %}
+                      {{ donation.donor.get_full_name|default:donation.donor.username }}
+                    {% else %}
+                      {{ donation.donor_name|default:"Guest" }}
+                    {% endif %}
+                  </td>
+                  <td><strong class="text-orange">${{ donation.amount }}</strong></td>
+                  <td>{{ donation.message|truncatechars:50|default:"—" }}</td>
+                  <td>{{ donation.created_at|date:"M j, Y" }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="empty-mini"><span>💛</span> No donations received yet.</div>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

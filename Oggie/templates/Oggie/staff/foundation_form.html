@@ -1,0 +1,23 @@
+{% extends 'Oggie/staff/base_staff.html' %}
+
+{% block title %}{% if object %}Edit {{ object.name }}{% else %}New foundation{% endif %} · Staff · Oggie{% endblock %}
+
+{% block staff_content %}
+<h1>{% if object %}Edit {{ object.name }}{% else %}New foundation{% endif %}</h1>
+<form method="post" enctype="multipart/form-data" class="card">
+  {% csrf_token %}
+  {% for field in form %}
+    <div class="field">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<span class="helptext">{{ field.help_text|safe }}</span>{% endif %}
+      {{ field.errors }}
+    </div>
+  {% endfor %}
+  <button class="btn btn-primary" type="submit">Save</button>
+  <a class="btn btn-secondary" href="{% url 'staff_foundation_list' %}">Cancel</a>
+  {% if object %}
+    <a class="btn btn-danger btn-icon" href="{% url 'staff_foundation_delete' object.pk %}" title="Delete foundation" aria-label="Delete foundation">{% include 'Oggie/_icon_trash.html' %}</a>
+  {% endif %}
+</form>
+{% endblock %}

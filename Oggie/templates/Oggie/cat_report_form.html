@@ -1,0 +1,105 @@
+{% extends 'Oggie/base.html' %}
+{% load static %}
+
+{% block title %}Report a stray · Oggie{% endblock %}
+
+{% block leaflet_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+{% endblock %}
+
+{% block content %}
+<div style="max-width:760px; margin:0 auto;">
+  <h1>Report a stray cat 🐾</h1>
+  <p class="text-muted">Spotted a stray in your neighborhood? Share what you saw — a partner foundation will review and verify.</p>
+
+  {% if form.non_field_errors %}
+    <ul class="messages"><li class="error">{{ form.non_field_errors }}</li></ul>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" class="card">
+    {% csrf_token %}
+
+    <div class="field">
+      <label for="{{ form.name.id_for_label }}">Cat's name (or a nickname)</label>
+      {{ form.name }}
+      {{ form.name.errors }}
+    </div>
+
+    <div class="row">
+      <div class="field col">
+        <label for="{{ form.gender.id_for_label }}">Gender</label>
+        {{ form.gender }}
+      </div>
+      <div class="field col">
+        <label for="{{ form.birthday.id_for_label }}">Birthday (if known)</label>
+        {{ form.birthday }}
+        <span class="helptext">{{ form.birthday.help_text }}</span>
+      </div>
+      <div class="field col">
+        <label for="{{ form.age_years.id_for_label }}">Estimated age (years)</label>
+        {{ form.age_years }}
+        <span class="helptext">Used only when birthday is unknown.</span>
+      </div>
+    </div>
+
+    <div class="field" style="background:var(--peach-light); padding:0.8rem 1rem; border-radius:12px;">
+      <strong>Care status (if you know)</strong>
+      <div style="display:flex; gap:1.5rem; flex-wrap:wrap; margin-top:0.4rem;">
+        <label style="display:flex; align-items:center; gap:0.4rem; margin:0; cursor:pointer;">
+          {{ form.is_neutered }} Neutered/spayed
+        </label>
+        <label style="display:flex; align-items:center; gap:0.4rem; margin:0; cursor:pointer;">
+          {{ form.is_vaccinated }} Vaccinated
+        </label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="{{ form.description.id_for_label }}">
+        What did the cat look like? Any notable details?
+        <span class="text-muted" style="font-weight:500;">(optional, highly encouraged)</span>
+      </label>
+      {{ form.description }}
+      {{ form.description.errors }}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.photo.id_for_label }}">Photo <span class="text-muted" style="font-weight:500;">(optional)</span></label>
+      {{ form.photo }}
+      {{ form.photo.errors }}
+      <span class="helptext">If you don't have a photo, a 😼 emoji will stand in for now — volunteers can add one later.</span>
+    </div>
+
+    <div class="field">
+      <label>Where did you spot the cat? (click the map)</label>
+      <div id="report-map" class="map-container" style="min-height:380px; margin-bottom:0.6rem;"></div>
+      {{ form.found_lat }}
+      {{ form.found_lng }}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.found_address.id_for_label }}">Nearby landmark or address (optional)</label>
+      {{ form.found_address }}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.feeding_sites.id_for_label }}">Have you also seen this cat at any feeding sites?</label>
+      <span class="helptext">Optional — pick any that apply. Start typing to filter.</span>
+      {{ form.feeding_sites }}
+    </div>
+
+    <button class="btn btn-primary" type="submit">Submit report</button>
+    <a class="btn btn-secondary" href="{% url 'cat_list' %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}
+
+{% block leaflet_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="{% static 'Oggie/js/map.js' %}"></script>
+<script src="{% static 'Oggie/js/searchable-multi.js' %}"></script>
+<script>
+  const map = OggieMap.init('report-map');
+  OggieMap.enablePicker(map, '{{ form.found_lat.id_for_label }}', '{{ form.found_lng.id_for_label }}');
+</script>
+{% endblock %}

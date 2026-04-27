@@ -1,0 +1,55 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Login — PawTrack{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <div class="auth-card">
+          <div class="auth-card-header text-center">
+            <div class="auth-icon">🐱</div>
+            <h2>Welcome Back!</h2>
+            <p>Log in to your PawTrack account</p>
+          </div>
+
+          <form method="POST" class="mt-4">
+            {% csrf_token %}
+            <div class="mb-4">
+              <label class="form-label fw-bold">Username</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                <input type="text" name="username" class="form-control paw-input" placeholder="Enter your username" required autofocus>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-bold">Password</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                <input type="password" name="password" class="form-control paw-input" placeholder="Enter your password" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-paw w-100 btn-lg">
+              <i class="fa-solid fa-right-to-bracket me-2"></i>Login
+            </button>
+          </form>
+
+          <div class="auth-divider my-4">
+            <span>New to PawTrack?</span>
+          </div>
+
+          <div class="d-flex gap-2">
+            <a href="{% url 'register_user' %}" class="btn btn-paw-outline flex-grow-1">
+              <i class="fa-solid fa-user-plus me-1"></i>Join as Volunteer/Donator
+            </a>
+            <a href="{% url 'register_foundation' %}" class="btn btn-paw-outline flex-grow-1">
+              <i class="fa-solid fa-building me-1"></i>Partner Foundation
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

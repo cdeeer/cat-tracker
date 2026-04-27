@@ -1,0 +1,40 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}{{ foundation.name }} · Oggie{% endblock %}
+
+{% block content %}
+<div class="card mb-3">
+  <div style="display:flex; gap:1.5rem; align-items:center; flex-wrap:wrap;">
+    {% if foundation.logo %}
+      <img src="{{ foundation.logo.url }}" alt="{{ foundation.name }}" style="width:120px; height:120px; object-fit:cover; border-radius:18px;">
+    {% endif %}
+    <div style="flex:1 1 300px;">
+      <h1 class="mt-0">{{ foundation.name }}</h1>
+      <p>{{ foundation.description|linebreaks }}</p>
+      <p class="text-muted">
+        <strong>Contact:</strong> {{ foundation.contact_email }}
+        {% if foundation.phone %}· {{ foundation.phone }}{% endif %}
+      </p>
+      <a class="btn btn-primary" href="{% url 'donate' %}?foundation={{ foundation.pk }}">Donate to {{ foundation.name }}</a>
+    </div>
+  </div>
+</div>
+
+<h2>Cats in their care</h2>
+{% if cats %}
+  <div class="grid">
+    {% for cat in cats %}
+      <a class="cat-card" href="{{ cat.get_absolute_url }}">
+        {% if cat.photo %}<img class="cat-photo" src="{{ cat.photo.url }}" alt="{{ cat.name }}" data-cat-photo onerror="oggieCatPhotoFallback(this)">{% else %}<div class="cat-photo cat-photo-emoji" aria-label="No photo"><span class="cat-glyph">😼</span></div>{% endif %}
+        <div class="cat-body">
+          <h3>{{ cat.name }}</h3>
+          <div class="cat-meta"><span class="badge badge-{{ cat.status }}">{{ cat.get_status_display }}</span></div>
+          <p class="cat-desc">{{ cat.description|truncatewords:15 }}</p>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state"><p>No cats listed yet.</p></div>
+{% endif %}
+{% endblock %}

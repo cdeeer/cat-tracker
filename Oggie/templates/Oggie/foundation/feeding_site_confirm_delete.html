@@ -1,0 +1,15 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Delete feeding site · Oggie{% endblock %}
+
+{% block content %}
+<div style="max-width:520px; margin:0 auto;">
+  <h1>Delete "{{ object.name }}"?</h1>
+  <p>Cats that were linked to this site will remain, but the location will no longer show on the map.</p>
+  <form method="post" class="card">
+    {% csrf_token %}
+    <button class="btn btn-danger" type="submit">Yes, delete</button>
+    <a class="btn btn-secondary" href="{% url 'foundation_feeding_site_list' %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

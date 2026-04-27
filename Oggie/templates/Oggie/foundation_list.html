@@ -1,0 +1,24 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Partner foundations · Oggie{% endblock %}
+
+{% block content %}
+<h1>Our partner foundations</h1>
+<p class="text-muted">The organizations working hard to care for stray cats in the community.</p>
+
+{% if foundations %}
+  <div class="grid">
+    {% for f in foundations %}
+      <a class="cat-card" href="{{ f.get_absolute_url }}">
+        {% if f.logo %}<img class="cat-photo" src="{{ f.logo.url }}" alt="{{ f.name }}">{% else %}<div class="cat-photo"></div>{% endif %}
+        <div class="cat-body">
+          <h3>{{ f.name }}</h3>
+          <p class="cat-desc">{{ f.description|truncatewords:25 }}</p>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state"><p>No partner foundations listed yet.</p></div>
+{% endif %}
+{% endblock %}

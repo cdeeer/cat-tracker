@@ -1,0 +1,121 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Foundation Dashboard · Oggie{% endblock %}
+
+{% block content %}
+<h1>{{ foundation.name }} Dashboard 🐾</h1>
+
+<div class="row">
+  <div class="card col text-center">
+    <h3 class="mt-0">{{ cat_count }}</h3>
+    <p class="text-muted mb-0">Cats in care</p>
+  </div>
+  <div class="card col text-center">
+    <h3 class="mt-0">{{ available_count }}</h3>
+    <p class="text-muted mb-0">Available for adoption</p>
+  </div>
+  <div class="card col text-center">
+    <h3 class="mt-0">{{ member_count }}</h3>
+    <p class="text-muted mb-0">Members</p>
+  </div>
+  <div class="card col text-center">
+    <h3 class="mt-0">₱{{ donation_total|floatformat:2 }}</h3>
+    <p class="text-muted mb-0">Total donations</p>
+  </div>
+</div>
+
+<p class="text-muted mt-2">
+  You're signed in as <strong>{% if is_admin %}an admin{% else %}a member{% endif %}</strong>
+  of {{ foundation.name }}.
+  {% if not is_admin %}An admin needs to promote you to manage members.{% endif %}
+</p>
+
+<div class="row mt-3">
+  <div class="col">
+    <div class="card">
+      <h2 class="mt-0">Quick actions</h2>
+      <div class="dashboard-actions">
+        <a class="btn btn-primary" href="{% url 'foundation_cat_create' %}">+ Add a cat</a>
+        <a class="btn btn-secondary" href="{% url 'foundation_cat_list' %}">Manage cats</a>
+        <a class="btn btn-secondary" href="{% url 'foundation_application_list' %}">Review applications</a>
+        <a class="btn btn-secondary" href="{% url 'foundation_donation_list' %}">See donations</a>
+        <a class="btn btn-secondary" href="{% url 'foundation_announcement_list' %}">Announcements</a>
+        <a class="btn btn-secondary" href="{% url 'foundation_feeding_site_list' %}">Feeding sites</a>
+        <a class="btn {% if open_incident_count %}btn-danger{% else %}btn-secondary{% endif %}"
+           href="{% url 'foundation_incident_list' %}">
+          🚨 Incidents{% if open_incident_count %}&ensp;<span class="action-badge">{{ open_incident_count }}</span>{% endif %}
+        </a>
+        {% if is_admin %}
+          <a class="btn btn-secondary" href="{% url 'foundation_member_list' %}">👥 Manage members</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if open_incidents %}
+<div class="mt-3">
+  <h2>🚨 Open incidents <a class="btn btn-sm btn-secondary" href="{% url 'foundation_incident_list' %}">View all</a></h2>
+  <ul style="list-style:none; padding:0;">
+    {% for inc in open_incidents %}
+      <li class="card mb-2" style="border-left:4px solid
+          {% if inc.incident_type == 'injured' %}#E07A5F
+          {% elif inc.incident_type == 'sick' %}#F4A261
+          {% elif inc.incident_type == 'abandoned' %}#9B72AA
+          {% elif inc.incident_type == 'missing' %}#457B9D
+          {% elif inc.incident_type == 'update_info' %}#2A9D8F
+          {% else %}#6C757D{% endif %};">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+          <span>
+            {% if inc.incident_type == 'injured' %}🩹{% elif inc.incident_type == 'sick' %}🤒{% elif inc.incident_type == 'abandoned' %}💔{% elif inc.incident_type == 'missing' %}🔍{% elif inc.incident_type == 'update_info' %}📝{% else %}⚠️{% endif %}
+            <strong><a href="{{ inc.cat.get_absolute_url }}">{{ inc.cat.name }}</a></strong> — {{ inc.incident_type_label }}
+          </span>
+          <span class="text-muted" style="font-size:0.85rem;">{{ inc.created_at|date:"M j, g:i a" }}</span>
+        </div>
+        <p class="text-muted mb-0" style="font-size:0.85rem; margin-top:0.2rem;">{{ inc.description|truncatewords:15 }}</p>
+        <div class="mt-1">
+          <a class="btn btn-sm btn-primary" href="{% url 'foundation_incident_detail' inc.pk %}">Review</a>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div class="row mt-3">
+  <div class="col">
+    <h2>Pending applications</h2>
+    {% if pending_apps %}
+      <ul style="list-style:none; padding:0;">
+        {% for app in pending_apps %}
+          <li class="card mb-2">
+            <strong>{{ app.applicant.username }}</strong> wants to adopt <strong>{{ app.cat.name }}</strong>
+            <span class="text-muted">· {{ app.submitted_at|date:"M j" }}</span>
+            <div class="mt-1">
+              <a class="btn btn-sm btn-primary" href="{% url 'foundation_application_detail' app.pk %}">Review</a>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="empty-state card"><p>No pending applications.</p></div>
+    {% endif %}
+  </div>
+  <div class="col">
+    <h2>Recent donations</h2>
+    {% if recent_donations %}
+      <ul style="list-style:none; padding:0;">
+        {% for d in recent_donations %}
+          <li class="card mb-2">
+            <strong>₱{{ d.amount }}</strong> from {% if d.is_anonymous %}<em>Anonymous</em>{% else %}{{ d.name }}{% endif %}
+            <span class="text-muted">· {{ d.created_at|date:"M j" }}</span>
+            {% if d.message %}<p class="text-muted mb-0" style="font-size:0.9rem;">"{{ d.message|truncatewords:15 }}"</p>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="empty-state card"><p>No donations yet.</p></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

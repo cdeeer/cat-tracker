@@ -1,0 +1,56 @@
+{% extends 'Oggie/base.html' %}
+{% load static %}
+
+{% block title %}Account settings · Oggie{% endblock %}
+
+{% block content %}
+<div style="max-width:640px; margin:0 auto;">
+  <h1>Account settings ⚙️</h1>
+  <p class="text-muted">Update your name and email, and manage which foundations you're associated with.</p>
+
+  <form method="post" class="card">
+    {% csrf_token %}
+
+    <div class="row">
+      <div class="field col">
+        <label for="{{ form.first_name.id_for_label }}">First name</label>
+        {{ form.first_name }}{{ form.first_name.errors }}
+      </div>
+      <div class="field col">
+        <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+        {{ form.last_name }}{{ form.last_name.errors }}
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="{{ form.email.id_for_label }}">Email</label>
+      {{ form.email }}{{ form.email.errors }}
+    </div>
+
+    <button class="btn btn-primary" type="submit">Save changes</button>
+    <a class="btn btn-secondary" href="{% url 'home' %}">Cancel</a>
+  </form>
+
+  <div class="card mt-3" style="background:var(--peach-light);">
+    <p class="mb-0">
+      <strong>Your role:</strong> {{ user.profile.get_role_display }}.
+      {% if user.is_staff %}You also have <strong>Oggie staff</strong> access.{% endif %}
+    </p>
+    {% if user.profile.foundations.exists %}
+      <p class="mb-0 mt-1">
+        <strong>Your foundations:</strong>
+        {% for f in user.profile.foundations.all %}
+          <a href="{{ f.get_absolute_url }}">{{ f.name }}</a>{% if user in f.admins.all %} <span class="badge badge-verified" title="You can manage this foundation's members">admin</span>{% endif %}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </p>
+    {% endif %}
+    <p class="text-muted mt-1 mb-0" style="font-size:0.9rem;">
+      Foundation membership is managed by the foundation's admins. Reach out to them if you'd like to join or leave.
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block leaflet_js %}
+<script src="{% static 'Oggie/js/searchable-multi.js' %}"></script>
+{% endblock %}

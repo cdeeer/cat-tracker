@@ -1,0 +1,39 @@
+{% extends 'Oggie/staff/base_staff.html' %}
+
+{% block title %}Users · Staff · Oggie{% endblock %}
+
+{% block staff_content %}
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+  <h1 class="mt-0">Users</h1>
+  <a class="btn btn-primary" href="{% url 'staff_user_create' %}">+ New user</a>
+</div>
+
+<table class="table card mt-2" style="padding:0; overflow:hidden;">
+  <thead><tr><th>Username</th><th>Name</th><th>Email</th><th>Role</th><th>Foundations</th><th>Staff</th><th>Active</th><th></th></tr></thead>
+  <tbody>
+    {% for u in users %}
+      <tr>
+        <td>{{ u.username }}</td>
+        <td>{{ u.get_full_name|default:"—" }}</td>
+        <td>{{ u.email|default:"—" }}</td>
+        <td>{% if u.profile %}{{ u.profile.get_role_display }}{% else %}—{% endif %}</td>
+        <td>{% for f in u.profile.foundations.all %}{{ f.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</td>
+        <td>{% if u.is_staff %}✓{% else %}{% endif %}</td>
+        <td>{% if u.is_active %}✓{% else %}{% endif %}</td>
+        <td style="text-align:right;">
+          <a class="btn btn-sm btn-secondary" href="{% url 'staff_user_update' u.pk %}">Edit</a>
+          {% if u != user %}<a class="btn btn-sm btn-danger btn-icon" href="{% url 'staff_user_delete' u.pk %}" title="Delete user" aria-label="Delete user">{% include 'Oggie/_icon_trash.html' %}</a>{% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if is_paginated %}
+  <div class="text-center mt-3">
+    {% if page_obj.has_previous %}<a class="btn btn-secondary btn-sm" href="?page={{ page_obj.previous_page_number }}">← Previous</a>{% endif %}
+    <span style="margin: 0 1rem;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a class="btn btn-secondary btn-sm" href="?page={{ page_obj.next_page_number }}">Next →</a>{% endif %}
+  </div>
+{% endif %}
+{% endblock %}

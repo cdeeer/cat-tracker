@@ -1,0 +1,88 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}My Dashboard · Oggie{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+  <h1 class="mt-0">Hi, {{ user.first_name|default:user.username }}! 🐾</h1>
+  <a class="btn btn-primary" href="{% url 'cat_report' %}">Report a stray</a>
+</div>
+
+<section class="mt-3">
+  <h2>My adoption applications</h2>
+  <form method="get" style="margin-bottom:0.8rem; display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+    <select name="app_status" onchange="this.form.submit()"
+            style="padding:0.4rem 0.8rem; border:2px solid var(--peach-light); border-radius:12px; font-family:inherit; background:var(--white);">
+      <option value="" {% if not app_status %}selected{% endif %}>All statuses</option>
+      {% for value, label in app_status_choices %}
+        <option value="{{ value }}" {% if app_status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    {% if app_status %}<a class="btn btn-secondary btn-sm" href="{% url 'my_dashboard' %}">Clear</a>{% endif %}
+  </form>
+
+  {% if applications %}
+    <table class="table card" style="padding:0; overflow:hidden;">
+      <thead><tr><th>Cat</th><th>Foundation</th><th>Submitted</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for app in applications %}
+          <tr>
+            <td><a href="{{ app.cat.get_absolute_url }}">{{ app.cat.name }}</a></td>
+            <td>{{ app.cat.foundation.name }}</td>
+            <td>{{ app.submitted_at|date:"M j, Y" }}</td>
+            <td><span class="badge badge-{{ app.status }}">{{ app.get_status_display }}</span></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="empty-state card">
+      <p>No {% if app_status %}{{ app_status }}{% endif %} applications yet.{% if not app_status %} <a href="{% url 'cat_list' %}">Browse the cats</a>!{% endif %}</p>
+    </div>
+  {% endif %}
+</section>
+
+<section class="mt-3">
+  <h2>My reported strays</h2>
+  {% if reported_cats %}
+    <div class="grid">
+      {% for c in reported_cats %}
+        <a class="cat-card" href="{{ c.get_absolute_url }}">
+          {% if c.photo %}<img class="cat-photo" src="{{ c.photo.url }}" alt="{{ c.name }}" data-cat-photo onerror="oggieCatPhotoFallback(this)">{% else %}<div class="cat-photo cat-photo-emoji" aria-label="No photo"><span class="cat-glyph">😼</span></div>{% endif %}
+          <div class="cat-body">
+            <h3>{{ c.name }}</h3>
+            <div class="cat-meta">
+              <span class="badge badge-{{ c.status }}">{{ c.get_status_display }}</span>
+              {% if c.foundation %}· Claimed by {{ c.foundation.name }}{% else %}· <em>Awaiting claim</em>{% endif %}
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state card"><p>You haven't reported any strays yet.</p></div>
+  {% endif %}
+</section>
+
+<section class="mt-3">
+  <h2>My donations</h2>
+  {% if donations %}
+    <table class="table card" style="padding:0; overflow:hidden;">
+      <thead><tr><th>Date</th><th>Foundation</th><th>Amount</th><th>Message</th><th>Receipt</th></tr></thead>
+      <tbody>
+        {% for d in donations %}
+          <tr>
+            <td>{{ d.created_at|date:"M j, Y" }}</td>
+            <td>{{ d.foundation.name }}{% if d.is_anonymous %} <span class="badge badge-stray" title="Foundations see 'Anonymous' for this donation">Anonymous</span>{% endif %}</td>
+            <td>₱{{ d.amount }}</td>
+            <td>{{ d.message|default:"—"|truncatewords:12 }}</td>
+            <td><a class="btn btn-sm btn-secondary" href="{% url 'donation_receipt' d.pk %}">Download PDF</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="empty-state card"><p>No donations yet. <a href="{% url 'donate' %}">Make one now</a> — every bit helps.</p></div>
+  {% endif %}
+</section>
+{% endblock %}

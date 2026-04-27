@@ -1,0 +1,100 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Join as Volunteer/Donator — PawTrack{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="auth-card">
+          <div class="auth-card-header text-center">
+            <div class="auth-icon">🙋</div>
+            <h2>Join as Volunteer / Donator</h2>
+            <p>Create your PawTrack account and start helping stray cats today!</p>
+          </div>
+
+          <form method="POST" class="mt-4">
+            {% csrf_token %}
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">First Name *</label>
+                <input type="text" name="first_name" class="form-control paw-input"
+                  value="{{ form.first_name.value|default:'' }}" placeholder="First name" required>
+                {% if form.first_name.errors %}<div class="field-error">{{ form.first_name.errors }}</div>{% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Last Name *</label>
+                <input type="text" name="last_name" class="form-control paw-input"
+                  value="{{ form.last_name.value|default:'' }}" placeholder="Last name" required>
+                {% if form.last_name.errors %}<div class="field-error">{{ form.last_name.errors }}</div>{% endif %}
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <label class="form-label fw-bold">Username *</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-at"></i></span>
+                <input type="text" name="username" class="form-control paw-input"
+                  value="{{ form.username.value|default:'' }}" placeholder="Choose a username" required>
+              </div>
+              {% if form.username.errors %}<div class="field-error">{{ form.username.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mt-3">
+              <label class="form-label fw-bold">Email Address *</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                <input type="email" name="email" class="form-control paw-input"
+                  value="{{ form.email.value|default:'' }}" placeholder="your@email.com" required>
+              </div>
+              {% if form.email.errors %}<div class="field-error">{{ form.email.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mt-3">
+              <label class="form-label fw-bold">I am joining as *</label>
+              <select name="role" class="form-select paw-input" required>
+                <option value="volunteer">🙋 Volunteer</option>
+                <option value="donator">💛 Donator</option>
+              </select>
+            </div>
+
+            <div class="mt-3">
+              <label class="form-label fw-bold">Phone (optional)</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+                <input type="tel" name="phone" class="form-control paw-input"
+                  value="{{ form.phone.value|default:'' }}" placeholder="Your phone number">
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <label class="form-label fw-bold">Password *</label>
+              <input type="password" name="password1" class="form-control paw-input" placeholder="Choose a strong password" required>
+              {% if form.password1.errors %}<div class="field-error">{{ form.password1.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mt-3">
+              <label class="form-label fw-bold">Confirm Password *</label>
+              <input type="password" name="password2" class="form-control paw-input" placeholder="Repeat your password" required>
+              {% if form.password2.errors %}<div class="field-error">{{ form.password2.errors }}</div>{% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="field-error mt-3">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-paw w-100 btn-lg mt-4">
+              <i class="fa-solid fa-paw me-2"></i>Create Account
+            </button>
+          </form>
+
+          <p class="text-center mt-4">Already have an account? <a href="{% url 'login' %}" class="text-link">Log in</a></p>
+          <p class="text-center">Want to register a foundation instead? <a href="{% url 'register_foundation' %}" class="text-link">Click here</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

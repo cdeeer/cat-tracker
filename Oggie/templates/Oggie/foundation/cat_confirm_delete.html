@@ -1,0 +1,15 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Delete {{ object.name }} · Oggie{% endblock %}
+
+{% block content %}
+<div style="max-width:520px; margin:0 auto;">
+  <h1>Delete {{ object.name }}?</h1>
+  <p>This will permanently remove {{ object.name }} and any adoption applications for them.</p>
+  <form method="post" class="card">
+    {% csrf_token %}
+    <button class="btn btn-danger" type="submit">Yes, delete {{ object.name }}</button>
+    <a class="btn btn-secondary" href="{% url 'foundation_cat_list' %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

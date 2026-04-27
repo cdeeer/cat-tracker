@@ -1,0 +1,106 @@
+{% extends 'Oggie/base.html' %}
+{% load static %}
+
+{% block title %}Cat Map · Oggie{% endblock %}
+
+{% block leaflet_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+{% endblock %}
+
+{% block content %}
+<h1>Cat Map 🗺️🐾</h1>
+<p class="text-muted">Feeding sites and reported strays across the community. Click a marker to see details.</p>
+
+<div class="map-tabs" role="tablist">
+  <button type="button" class="map-tab active" data-filter="all" role="tab" aria-selected="true">All</button>
+  <button type="button" class="map-tab" data-filter="feeding" role="tab" aria-selected="false">🍽️ Feeding sites</button>
+  <button type="button" class="map-tab" data-filter="stray" role="tab" aria-selected="false">🐱 Cats</button>
+</div>
+
+<div class="map-legend">
+  <div class="map-legend-item"><span class="map-dot map-dot-feeding"></span> Feeding site</div>
+  <div class="map-legend-item"><span class="map-emoji">🐱</span> Cat</div>
+  <div class="map-legend-item text-muted" style="margin-left:auto;">
+    <span id="marker-count">0</span> markers shown
+  </div>
+</div>
+
+<div id="cat-map" class="map-container"></div>
+{{ feeding_sites_data|json_script:"feeding-sites-data" }}
+{{ reports_data|json_script:"reports-data" }}
+{% endblock %}
+
+{% block leaflet_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="{% static 'Oggie/js/map.js' %}"></script>
+<script>
+  (function () {
+    const sites = JSON.parse(document.getElementById('feeding-sites-data').textContent);
+    const reports = JSON.parse(document.getElementById('reports-data').textContent);
+    const focusSlug = '{{ focus_slug|escapejs }}';
+    const map = OggieMap.init('cat-map');
+    const feedingMarkers = OggieMap.renderFeedingSites(map, sites);
+    const strayMarkers = OggieMap.renderReports(map, reports);
+    const feedingLayer = L.layerGroup(feedingMarkers).addTo(map);
+    const strayLayer = L.layerGroup(strayMarkers).addTo(map);
+    const countEl = document.getElementById('marker-count');
+
+    function fitBounds() {
+      const layers = [];
+      feedingLayer.eachLayer(l => layers.push(l));
+      strayLayer.eachLayer(l => layers.push(l));
+      if (layers.length) {
+        const group = L.featureGroup(layers);
+        map.fitBounds(group.getBounds().pad(0.2));
+      }
+    }
+
+    function focusCat(slug) {
+      if (!slug) return false;
+      const marker = strayMarkers.bySlug && strayMarkers.bySlug[slug];
+      if (!marker) return false;
+      map.setView(marker.getLatLng(), 16, { animate: true });
+      marker.openPopup();
+      return true;
+    }
+
+    function updateCount() {
+      let n = 0;
+      if (map.hasLayer(feedingLayer)) feedingLayer.eachLayer(() => n++);
+      if (map.hasLayer(strayLayer)) strayLayer.eachLayer(() => n++);
+      countEl.textContent = n;
+    }
+
+    function setFilter(filter) {
+      if (filter === 'all') {
+        if (!map.hasLayer(feedingLayer)) map.addLayer(feedingLayer);
+        if (!map.hasLayer(strayLayer)) map.addLayer(strayLayer);
+      } else if (filter === 'feeding') {
+        if (!map.hasLayer(feedingLayer)) map.addLayer(feedingLayer);
+        if (map.hasLayer(strayLayer)) map.removeLayer(strayLayer);
+      } else if (filter === 'stray') {
+        if (map.hasLayer(feedingLayer)) map.removeLayer(feedingLayer);
+        if (!map.hasLayer(strayLayer)) map.addLayer(strayLayer);
+      }
+      updateCount();
+    }
+
+    document.querySelectorAll('.map-tab').forEach(btn => {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.map-tab').forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        this.classList.add('active');
+        this.setAttribute('aria-selected', 'true');
+        setFilter(this.dataset.filter);
+      });
+    });
+
+    if (!focusCat(focusSlug)) {
+      fitBounds();
+    }
+    updateCount();
+  })();
+</script>
+{% endblock %}

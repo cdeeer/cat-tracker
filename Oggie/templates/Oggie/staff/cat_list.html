@@ -1,0 +1,43 @@
+{% extends 'Oggie/staff/base_staff.html' %}
+
+{% block title %}Cats · Staff · Oggie{% endblock %}
+
+{% block staff_content %}
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+  <h1 class="mt-0">Cats</h1>
+  <div>
+    {% if unclaimed_only %}
+      <a class="btn btn-secondary" href="{% url 'staff_cat_list' %}">Show all</a>
+    {% else %}
+      <a class="btn btn-secondary" href="?unclaimed=1">Show unclaimed only</a>
+    {% endif %}
+  </div>
+</div>
+
+<table class="table card mt-2" style="padding:0; overflow:hidden;">
+  <thead><tr><th></th><th>Name</th><th>Status</th><th>Foundation</th><th>Reported by</th><th></th></tr></thead>
+  <tbody>
+    {% for c in cats %}
+      <tr>
+        <td style="width:60px;">{% if c.photo %}<img src="{{ c.photo.url }}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:10px;" data-cat-photo onerror="oggieCatPhotoFallback(this)">{% else %}<div class="cat-photo-emoji-sm" style="width:48px;height:48px;font-size:22px;" aria-hidden="true"><span class="cat-glyph">😼</span></div>{% endif %}</td>
+        <td><a href="{{ c.get_absolute_url }}">{{ c.name }}</a></td>
+        <td><span class="badge badge-{{ c.status }}">{{ c.get_status_display }}</span></td>
+        <td>{% if c.foundation %}{{ c.foundation.name }}{% else %}<em class="text-muted">Unclaimed</em>{% endif %}</td>
+        <td>{% if c.reported_by %}{{ c.reported_by.username }}{% else %}—{% endif %}</td>
+        <td style="text-align:right;">
+          <a class="btn btn-sm btn-secondary" href="{% url 'staff_cat_update' c.slug %}">Edit</a>
+          <a class="btn btn-sm btn-danger btn-icon" href="{% url 'staff_cat_delete' c.slug %}" title="Delete cat" aria-label="Delete cat">{% include 'Oggie/_icon_trash.html' %}</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if is_paginated %}
+  <div class="text-center mt-3">
+    {% if page_obj.has_previous %}<a class="btn btn-secondary btn-sm" href="?page={{ page_obj.previous_page_number }}{% if unclaimed_only %}&unclaimed=1{% endif %}">← Previous</a>{% endif %}
+    <span style="margin: 0 1rem;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a class="btn btn-secondary btn-sm" href="?page={{ page_obj.next_page_number }}{% if unclaimed_only %}&unclaimed=1{% endif %}">Next →</a>{% endif %}
+  </div>
+{% endif %}
+{% endblock %}

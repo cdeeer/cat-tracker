@@ -1,0 +1,22 @@
+{% if widget.is_initial %}
+  <div style="display:flex; flex-direction:column; gap:0.25rem;
+              background:var(--cream); border:2px solid var(--peach-light);
+              border-radius:12px; padding:0.6rem 0.9rem; margin-bottom:0.5rem;">
+    <span style="font-size:0.9rem; color:var(--muted);">
+      Currently:&ensp;<a href="{{ widget.value.url }}" target="_blank"
+                        style="font-weight:700; color:var(--rust);">{{ widget.value }}</a>
+    </span>
+    {% if not widget.required %}
+      <div style="display:flex; align-items:center; gap:0.45rem; margin-top:0.1rem;">
+        <input type="checkbox"
+               name="{{ widget.checkbox_name }}"
+               id="{{ widget.checkbox_id }}"
+               {% if widget.attrs.disabled %}disabled{% endif %}>
+        <label for="{{ widget.checkbox_id }}"
+               style="display:inline; margin:0; font-size:0.9rem; font-weight:600; color:var(--rust); cursor:pointer;">{{ widget.clear_checkbox_label }}</label>
+      </div>
+    {% endif %}
+  </div>
+  <br>
+{% endif %}
+<input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>

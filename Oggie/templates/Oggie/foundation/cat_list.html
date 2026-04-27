@@ -1,0 +1,34 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Manage cats · Oggie{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+  <h1>Manage your cats</h1>
+  <a class="btn btn-primary" href="{% url 'foundation_cat_create' %}">+ Add a cat</a>
+</div>
+
+{% if cats %}
+  <table class="table card mt-2" style="padding:0; overflow:hidden;">
+    <thead><tr><th></th><th>Name</th><th>Status</th><th>Added</th><th></th></tr></thead>
+    <tbody>
+      {% for cat in cats %}
+        <tr>
+          <td style="width:60px;">
+            {% if cat.photo %}<img src="{{ cat.photo.url }}" alt="" style="width:48px; height:48px; object-fit:cover; border-radius:10px;" data-cat-photo onerror="oggieCatPhotoFallback(this)">{% else %}<div class="cat-photo-emoji-sm" style="width:48px; height:48px; font-size:22px;" aria-hidden="true"><span class="cat-glyph">😼</span></div>{% endif %}
+          </td>
+          <td><a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a></td>
+          <td><span class="badge badge-{{ cat.status }}">{{ cat.get_status_display }}</span></td>
+          <td>{{ cat.created_at|date:"M j, Y" }}</td>
+          <td style="text-align:right;">
+            <a class="btn btn-secondary btn-sm" href="{% url 'foundation_cat_update' cat.slug %}">Edit</a>
+            <a class="btn btn-danger btn-sm btn-icon" href="{% url 'foundation_cat_delete' cat.slug %}" title="Delete cat" aria-label="Delete cat">{% include 'Oggie/_icon_trash.html' %}</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="empty-state card"><p>No cats yet — <a href="{% url 'foundation_cat_create' %}">add your first one</a>.</p></div>
+{% endif %}
+{% endblock %}

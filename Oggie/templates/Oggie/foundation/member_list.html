@@ -1,0 +1,77 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Members · {{ foundation.name }} · Oggie{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+  <div>
+    <h1 class="mt-0">👥 {{ foundation.name }} members</h1>
+    <p class="text-muted mb-0">
+      Members can manage cats, announcements, and feeding sites.
+      <strong>Admins</strong> can also add/remove members.
+    </p>
+  </div>
+  <a class="btn btn-primary" href="{% url 'foundation_member_add' %}">+ Add member</a>
+</div>
+
+{% if members %}
+  <table class="table card mt-3" style="padding:0; overflow:hidden;">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in members %}
+        {% with is_admin=m.pk|stringformat:"s" %}
+        <tr>
+          <td>
+            <strong>{{ m.get_full_name|default:m.username }}</strong>
+            <span class="text-muted">· @{{ m.username }}</span>
+            {% if m == user %}<span class="badge badge-peach">you</span>{% endif %}
+          </td>
+          <td>{{ m.email|default:"—" }}</td>
+          <td>
+            {% if m.pk in admin_ids %}
+              <span class="badge badge-verified">✓ Admin</span>
+            {% else %}
+              <span class="badge badge-in_care">Member</span>
+            {% endif %}
+          </td>
+          <td style="text-align:right; white-space:nowrap;">
+            {% if m.pk in admin_ids %}
+              {% if m != user %}
+                <form method="post" action="{% url 'foundation_member_demote' m.pk %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button class="btn btn-sm btn-secondary" type="submit" title="Revoke admin">Demote to member</button>
+                </form>
+              {% endif %}
+            {% else %}
+              <form method="post" action="{% url 'foundation_member_promote' m.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-mint" type="submit" title="Grant admin">Promote to admin</button>
+              </form>
+            {% endif %}
+            {% if m != user %}
+              <form method="post" action="{% url 'foundation_member_remove' m.pk %}" style="display:inline;" onsubmit="return confirm('Remove {{ m.username }} from {{ foundation.name }}?');">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-danger btn-icon" type="submit" title="Remove from foundation" aria-label="Remove from foundation">{% include 'Oggie/_icon_trash.html' %}</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endwith %}
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="empty-state card mt-3"><p>No members yet. <a href="{% url 'foundation_member_add' %}">Add your first one</a>.</p></div>
+{% endif %}
+
+<p class="text-muted mt-3" style="font-size:0.9rem;">
+  Removing a member also drops them as point person from any feeding site of this foundation.
+</p>
+{% endblock %}

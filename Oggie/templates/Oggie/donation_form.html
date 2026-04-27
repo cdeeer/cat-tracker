@@ -1,0 +1,51 @@
+{% extends 'Oggie/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Donate · Oggie{% endblock %}
+
+{% block content %}
+<div style="max-width:600px; margin:0 auto;">
+  <h1>Help feed &amp; care for stray cats 💛</h1>
+  <p class="text-muted">100% of your donation goes to the partner foundation you choose. This is a demo — no real payment is processed.</p>
+
+  <form method="post" class="card">
+    {% csrf_token %}
+    <div class="field">
+      <label for="{{ form.foundation.id_for_label }}">Support which foundation?</label>
+      {{ form.foundation }}
+      {{ form.foundation.errors }}
+    </div>
+    <div class="field">
+      <label for="{{ form.amount.id_for_label }}">Amount (PHP ₱)</label>
+      {{ form.amount|attr:"step:0.01"|attr:"min:1" }}
+      {{ form.amount.errors }}
+    </div>
+    <div class="row">
+      <div class="field col">
+        <label for="{{ form.name.id_for_label }}">Your name</label>
+        {{ form.name }}
+        {{ form.name.errors }}
+      </div>
+      <div class="field col">
+        <label for="{{ form.email.id_for_label }}">Email</label>
+        {{ form.email }}
+        {{ form.email.errors }}
+      </div>
+    </div>
+    <div class="field">
+      <label for="{{ form.message.id_for_label }}">Message (optional)</label>
+      {{ form.message }}
+    </div>
+    <div class="field" style="background:var(--peach-light); padding:0.9rem 1.1rem; border-radius:12px;">
+      <label for="{{ form.is_anonymous.id_for_label }}" style="display:flex; align-items:flex-start; gap:0.6rem; cursor:pointer; margin:0;">
+        {{ form.is_anonymous }}
+        <span>
+          <strong>Make this donation anonymous</strong>
+          <span class="helptext" style="display:block; margin-top:0.2rem;">Foundations will see "Anonymous" instead of your name.{% if user.is_authenticated %} You'll still see it on your own dashboard.{% endif %}</span>
+        </span>
+      </label>
+    </div>
+    <button class="btn btn-primary" type="submit">Donate 🐾</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'Oggie/base.html' %}
+{% load static %}
+
+{% block title %}Oggie · Help stray cats find a home{% endblock %}
+
+{% block content %}
+{% if announcements %}
+  <section class="announcement-list">
+    {% for a in announcements %}
+      <div class="announcement">
+        <div class="announcement-head">
+          <h3>📣 {{ a.title }}</h3>
+          <span class="announcement-source">{{ a.foundation.name }} · {{ a.created_at|date:"M j" }}</span>
+        </div>
+        <p>{{ a.body|linebreaksbr }}</p>
+      </div>
+    {% endfor %}
+  </section>
+{% endif %}
+
+<section class="hero">
+  <div class="hero-text">
+    <h1>Every stray deserves a home.</h1>
+    <p>Oggie helps neighbors, volunteers, and partner foundations track, care for, and adopt stray cats across the community.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{% url 'cat_list' %}">Meet the cats</a>
+      <a class="btn btn-secondary" href="{% url 'donate' %}">Donate</a>
+    </div>
+  </div>
+  <div class="hero-art">
+    <img src="{% static 'Oggie/img/maxwell-maxwell-spin.gif' %}" alt="Spinning cartoon cat" style="mix-blend-mode: multiply; filter: contrast(1.08) brightness(1.05);">
+  </div>
+</section>
+
+<section>
+  <h2>Featured cats</h2>
+  {% if featured_cats %}
+    <div class="grid">
+      {% for cat in featured_cats %}
+        <a class="cat-card" href="{{ cat.get_absolute_url }}">
+          {% if cat.photo %}
+            <img class="cat-photo" src="{{ cat.photo.url }}" alt="{{ cat.name }}" data-cat-photo onerror="oggieCatPhotoFallback(this)">
+          {% else %}
+            <div class="cat-photo cat-photo-emoji" aria-label="No photo"><span class="cat-glyph">😼</span></div>
+          {% endif %}
+          <div class="cat-body">
+            <h3>{{ cat.name }}</h3>
+            <div class="cat-meta">
+              <span class="badge badge-{{ cat.status }}">{{ cat.get_status_display }}</span>
+              {% if cat.is_verified %}<span class="badge badge-verified" title="Verified by {{ cat.foundation.name }}">✓</span>{% endif %}
+              · {{ cat.foundation.name }}
+            </div>
+            <p class="cat-desc">{{ cat.description|truncatewords:18 }}</p>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <p>No cats listed yet — check back soon!</p>
+    </div>
+  {% endif %}
+</section>
+
+<section class="card mt-3 text-center">
+  <h2>Three ways to help</h2>
+  <div class="row mt-2">
+    <div class="col">
+      <h3>🐾 Adopt</h3>
+      <p>Browse cats looking for homes and submit an adoption application in minutes.</p>
+    </div>
+    <div class="col">
+      <h3>💛 Donate</h3>
+      <p>Support a partner foundation's food, medical, and shelter costs.</p>
+    </div>
+    <div class="col">
+      <h3>🏠 Volunteer</h3>
+      <p>Work with partner foundations to rescue and care for strays.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

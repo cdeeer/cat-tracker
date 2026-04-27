@@ -1,0 +1,54 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Cats · Oggie{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+  <h1 class="mt-0">Meet the cats 🐾</h1>
+  <a class="btn btn-mint" href="{% url 'cat_report' %}">🐾 Found a stray? Report it</a>
+</div>
+
+<form method="get" class="card mb-3" style="display:flex; gap:1rem; align-items:end; flex-wrap:wrap;">
+  <div class="field" style="flex:1 1 220px; margin-bottom:0;">
+    <label for="status">Filter by status</label>
+    <select name="status" id="status">
+      <option value="">All cats</option>
+      {% for value, label in status_choices %}
+        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="btn btn-primary" type="submit">Filter</button>
+  {% if selected_status %}<a class="btn btn-secondary" href="{% url 'cat_list' %}">Clear</a>{% endif %}
+</form>
+
+{% if cats %}
+  <div class="grid">
+    {% for cat in cats %}
+      <a class="cat-card" href="{{ cat.get_absolute_url }}">
+        {% if cat.photo %}<img class="cat-photo" src="{{ cat.photo.url }}" alt="{{ cat.name }}" data-cat-photo onerror="oggieCatPhotoFallback(this)">{% else %}<div class="cat-photo cat-photo-emoji" aria-label="No photo"><span class="cat-glyph">😼</span></div>{% endif %}
+        <div class="cat-body">
+          <h3>{{ cat.name }}</h3>
+          <div class="cat-meta">
+            <span class="badge badge-{{ cat.status }}">{{ cat.get_status_display }}</span>
+            {% if cat.is_verified %}<span class="badge badge-verified" title="Verified by {{ cat.foundation.name }}">✓</span>{% endif %}
+            · {% if cat.foundation %}{{ cat.foundation.name }}{% else %}<em>Unclaimed</em>{% endif %}
+          </div>
+          <p class="cat-desc">{{ cat.description|truncatewords:18 }}</p>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+  {% if is_paginated %}
+    <div class="text-center mt-3">
+      {% if page_obj.has_previous %}<a class="btn btn-secondary btn-sm" href="?page={{ page_obj.previous_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}">← Previous</a>{% endif %}
+      <span style="margin: 0 1rem;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a class="btn btn-secondary btn-sm" href="?page={{ page_obj.next_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}">Next →</a>{% endif %}
+    </div>
+  {% endif %}
+{% else %}
+  <div class="empty-state">
+    <p>No cats match your filter right now.</p>
+  </div>
+{% endif %}
+{% endblock %}

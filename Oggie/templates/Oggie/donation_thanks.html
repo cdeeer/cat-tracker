@@ -1,0 +1,14 @@
+{% extends 'Oggie/base.html' %}
+{% load static %}
+
+{% block title %}Thank you! · Oggie{% endblock %}
+
+{% block content %}
+<div class="text-center card" style="max-width:560px; margin:2rem auto;">
+  <img src="{% static 'Oggie/img/maxwell-maxwell-spin.gif' %}" alt="" style="width:180px; mix-blend-mode: multiply; filter: contrast(1.08) brightness(1.05);">
+  <h1>Thank you! 💛</h1>
+  <p>Your kindness keeps tails wagging and bellies full. We'll send a receipt to your email.</p>
+  <a class="btn btn-primary" href="{% url 'cat_list' %}">Meet the cats</a>
+  <a class="btn btn-secondary" href="{% url 'home' %}">Back home</a>
+</div>
+{% endblock %}

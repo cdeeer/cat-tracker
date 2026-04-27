@@ -1,0 +1,34 @@
+{% extends 'Oggie/base.html' %}
+
+{% block title %}Feeding sites · Oggie{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+  <h1 class="mt-0">Feeding sites 🍽️</h1>
+  <a class="btn btn-primary" href="{% url 'foundation_feeding_site_create' %}">+ New site</a>
+</div>
+<p class="text-muted">These appear on the public Cat Map. Each site can be linked to specific cats.</p>
+
+{% if sites %}
+  <table class="table card" style="padding:0; overflow:hidden;">
+    <thead><tr><th>Name</th><th>Schedule</th><th>Point persons</th><th>Contact</th><th>Cats</th><th></th></tr></thead>
+    <tbody>
+      {% for s in sites %}
+        <tr>
+          <td>{{ s.name }}</td>
+          <td>{{ s.schedule }}</td>
+          <td>{{ s.point_persons_display }}</td>
+          <td>{{ s.contact_details|default:"—" }}</td>
+          <td>{{ s.cats.count }}</td>
+          <td style="text-align:right;">
+            <a class="btn btn-sm btn-secondary" href="{% url 'foundation_feeding_site_update' s.pk %}">Edit</a>
+            <a class="btn btn-sm btn-danger btn-icon" href="{% url 'foundation_feeding_site_delete' s.pk %}" title="Delete site" aria-label="Delete site">{% include 'Oggie/_icon_trash.html' %}</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="empty-state card"><p>No feeding sites yet. <a href="{% url 'foundation_feeding_site_create' %}">Add your first one</a>.</p></div>
+{% endif %}
+{% endblock %}
