@@ -1,0 +1,1 @@
+web: gunicorn cat_tracker.wsgi:app
